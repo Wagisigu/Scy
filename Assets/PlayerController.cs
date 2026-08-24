@@ -10,7 +10,6 @@ public class PlayerController : MonoBehaviour
 {
 
     public static PlayerController Instance;
-
     private Rigidbody2D _rb;
     private Animator _animator;
 
@@ -20,6 +19,7 @@ public class PlayerController : MonoBehaviour
 
     [Header("Jump Movement Settings")]
     [SerializeField] private float _jumpForce = 1;
+    private bool _jumpInput;
 
     [Header("Ground Check Setup")]
     [SerializeField] private Transform groundCheckPoint;
@@ -52,9 +52,12 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         UpdateStatus();
-        Flip();
-        Move();
         SendStatus();
+    }
+
+    private void FixedUpdate()
+    {
+        UpdateCharacter();
     }
 
     private void UpdateStatus()
@@ -74,9 +77,16 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void Move()
+    private void UpdateCharacter()
     {
-        _rb.linearVelocity = new Vector2(_moveInput.x * _walkSpeed, _rb.linearVelocity.y);
+        Flip();
+        if (_isGrounded && _jumpInput)
+        {
+            _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, _jumpForce);
+        }
+        if (_isGrounded) _rb.linearVelocity = new Vector2(_moveInput.x * _walkSpeed, _rb.linearVelocity.y);
+
+        _jumpInput = false;
     }
 
     private void SendStatus()
@@ -93,7 +103,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnJump()
     {
-        if (_isGrounded) _rb.AddForce(Vector2.up * _jumpForce, ForceMode2D.Impulse);
+        _jumpInput = true; 
     }
     private void OnDrawGizmosSelected()
     {
