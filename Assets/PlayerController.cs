@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Data;
 using Unity.VisualScripting;
 using UnityEditor.Tilemaps;
@@ -6,6 +7,8 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody2D))]
+[RequireComponent(typeof(Animator))]
+
 public class PlayerController : MonoBehaviour
 {
 
@@ -25,6 +28,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Transform groundCheckPoint;
     [SerializeField] private float checkRadius = 0.2f;
     [SerializeField] private LayerMask groundLayer;
+
+    private bool _attackInput;
+    private bool _isAttacking;
 
     private bool _isGrounded;
 
@@ -80,19 +86,26 @@ public class PlayerController : MonoBehaviour
     private void UpdateCharacter()
     {
         Flip();
-        if (_isGrounded && _jumpInput)
+        if (_isGrounded)
         {
-            _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, _jumpForce);
+            if (_jumpInput) _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, _jumpForce);
+            else if (_attackInput)
+            {
+                _isAttacking = true;
+                StartCoroutine(Attack());
+            }
+            if (!_isAttacking)_rb.linearVelocity = new Vector2(_moveInput.x * _walkSpeed, _rb.linearVelocity.y);
         }
-        if (_isGrounded) _rb.linearVelocity = new Vector2(_moveInput.x * _walkSpeed, _rb.linearVelocity.y);
 
+        _attackInput = false;
         _jumpInput = false;
     }
 
     private void SendStatus()
     {
         _animator.SetBool("IsGrounded", _isGrounded);
-        _animator.SetFloat("HorizontalSpeed", Mathf.Abs(_rb.linearVelocity.x));
+        _animator.SetFloat("HorizontalSpeed", Mathf.Abs(_rb.linearVelocityX));
+        _animator.SetFloat("VerticalSpeed", _rb.linearVelocityY);
     }
 
     // Input handling
@@ -105,6 +118,26 @@ public class PlayerController : MonoBehaviour
     {
         _jumpInput = true; 
     }
+
+    private void OnAttack()
+    {
+        _attackInput = true;
+    }
+
+    IEnumerator Attack()
+    {
+        _animator.SetTrigger("Attack");
+
+        yield return null;
+
+        yield return new WaitUntil(() =>
+            _animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1.0f &&
+            !_animator.IsInTransition(0)
+        );
+
+        _isAttacking = false;
+    }
+
     private void OnDrawGizmosSelected()
     {
         if (groundCheckPoint != null)
