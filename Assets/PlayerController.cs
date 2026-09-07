@@ -88,13 +88,14 @@ public class PlayerController : MonoBehaviour
         Flip();
         if (_isGrounded)
         {
-            if (_jumpInput) _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, _jumpForce);
+            if (!_isAttacking && _jumpInput) _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, _jumpForce);
             else if (_attackInput)
             {
                 _isAttacking = true;
+                _rb.linearVelocityX = 0;
                 StartCoroutine(Attack());
             }
-            if (!_isAttacking)_rb.linearVelocity = new Vector2(_moveInput.x * _walkSpeed, _rb.linearVelocity.y);
+            if (!_isAttacking) _rb.linearVelocity = new Vector2(_moveInput.x * _walkSpeed, _rb.linearVelocity.y);
         }
 
         _attackInput = false;
@@ -127,13 +128,37 @@ public class PlayerController : MonoBehaviour
     IEnumerator Attack()
     {
         _animator.SetTrigger("Attack");
-
-        yield return null;
-
+        // Wait until the animator enters an attack state, capture its state hash,
+        // then wait until we leave that state. This ensures we wait specifically
+        // for the attack state's exit instead of relying on normalizedTime of
+        // whatever state is current (which could be Idle).
+        int attackStateHash = 0;
         yield return new WaitUntil(() =>
-            _animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1.0f &&
-            !_animator.IsInTransition(0)
-        );
+        {
+            var state = _animator.GetCurrentAnimatorStateInfo(0);
+            // Common state name checks: exact name or in "Base Layer.Name" form
+            if (state.IsName("Punch") || state.IsName("Base Layer.Punch"))
+            {
+                attackStateHash = state.fullPathHash;
+                return true;
+            }
+
+            // As a fallback, check the current clip name contains "Punch" (useful for variant clips)
+            var clips = _animator.GetCurrentAnimatorClipInfo(0);
+            if (clips != null && clips.Length > 0 && clips[0].clip != null)
+            {
+                if (clips[0].clip.name.IndexOf("Punch", StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    attackStateHash = state.fullPathHash;
+                    return true;
+                }
+            }
+
+            return false;
+        });
+
+        // Wait while the animator is still in the captured attack state
+        yield return new WaitWhile(() => _animator.GetCurrentAnimatorStateInfo(0).fullPathHash == attackStateHash);
 
         _isAttacking = false;
     }
