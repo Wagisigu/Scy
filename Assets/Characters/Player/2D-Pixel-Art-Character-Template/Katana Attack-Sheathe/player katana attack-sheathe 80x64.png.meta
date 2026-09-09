@@ -143,12 +143,12 @@ TextureImporter:
       name: player katana attack-sheathe 80x64_0
       rect:
         serializedVersion: 2
-        x: 25
-        y: 15
-        width: 21
-        height: 30
+        x: 0
+        y: 0
+        width: 80
+        height: 64
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -165,12 +165,12 @@ TextureImporter:
       name: player katana attack-sheathe 80x64_1
       rect:
         serializedVersion: 2
-        x: 102
-        y: 15
-        width: 56
-        height: 26
+        x: 80
+        y: 0
+        width: 80
+        height: 64
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -187,12 +187,12 @@ TextureImporter:
       name: player katana attack-sheathe 80x64_2
       rect:
         serializedVersion: 2
-        x: 180
-        y: 15
-        width: 56
-        height: 34
+        x: 160
+        y: 0
+        width: 80
+        height: 64
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -209,12 +209,12 @@ TextureImporter:
       name: player katana attack-sheathe 80x64_3
       rect:
         serializedVersion: 2
-        x: 260
-        y: 15
-        width: 37
-        height: 32
+        x: 240
+        y: 0
+        width: 80
+        height: 64
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -231,12 +231,12 @@ TextureImporter:
       name: player katana attack-sheathe 80x64_4
       rect:
         serializedVersion: 2
-        x: 340
-        y: 15
-        width: 37
-        height: 32
+        x: 320
+        y: 0
+        width: 80
+        height: 64
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -253,12 +253,12 @@ TextureImporter:
       name: player katana attack-sheathe 80x64_5
       rect:
         serializedVersion: 2
-        x: 420
-        y: 15
-        width: 45
-        height: 32
+        x: 400
+        y: 0
+        width: 80
+        height: 64
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -275,12 +275,12 @@ TextureImporter:
       name: player katana attack-sheathe 80x64_6
       rect:
         serializedVersion: 2
-        x: 506
-        y: 15
-        width: 23
-        height: 30
+        x: 480
+        y: 0
+        width: 80
+        height: 64
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -297,12 +297,12 @@ TextureImporter:
       name: player katana attack-sheathe 80x64_7
       rect:
         serializedVersion: 2
-        x: 585
-        y: 15
-        width: 21
-        height: 30
+        x: 560
+        y: 0
+        width: 80
+        height: 64
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -319,12 +319,12 @@ TextureImporter:
       name: player katana attack-sheathe 80x64_8
       rect:
         serializedVersion: 2
-        x: 665
-        y: 15
-        width: 21
-        height: 30
+        x: 640
+        y: 0
+        width: 80
+        height: 64
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -341,19 +341,19 @@ TextureImporter:
       name: player katana attack-sheathe 80x64_9
       rect:
         serializedVersion: 2
-        x: 745
-        y: 15
-        width: 21
-        height: 30
+        x: 720
+        y: 0
+        width: 80
+        height: 64
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 92e0e1f42bb8857f0800000000000000
+      spriteID: 02ae82ecdc2fa3442b0023a2f2e16a58
       internalID: -623594950443004375
       vertices: []
       indices: 
@@ -363,7 +363,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 2560c30421984b64ca71268012bb832d
     internalID: 0
     vertices: []
     indices: 
@@ -371,7 +371,9 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries: []
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":80.0,"y":64.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
       player katana attack-sheathe 80x64_0: 595185120197990056
       player katana attack-sheathe 80x64_1: -8698999996917198031

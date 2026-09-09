@@ -125,6 +125,7 @@ public class PlayerController : MonoBehaviour
         _attackInput = true;
     }
 
+    // TODO: Instead use an attack event in the animation itself and respond to that here
     IEnumerator Attack()
     {
         _animator.SetTrigger("Attack");
@@ -137,7 +138,7 @@ public class PlayerController : MonoBehaviour
         {
             var state = _animator.GetCurrentAnimatorStateInfo(0);
             // Common state name checks: exact name or in "Base Layer.Name" form
-            if (state.IsName("Punch") || state.IsName("Base Layer.Punch"))
+            if (state.IsName("Attack") || state.IsName("Base Layer.Attack"))
             {
                 attackStateHash = state.fullPathHash;
                 return true;
@@ -147,7 +148,7 @@ public class PlayerController : MonoBehaviour
             var clips = _animator.GetCurrentAnimatorClipInfo(0);
             if (clips != null && clips.Length > 0 && clips[0].clip != null)
             {
-                if (clips[0].clip.name.IndexOf("Punch", StringComparison.OrdinalIgnoreCase) >= 0)
+                if (clips[0].clip.name.IndexOf("Attack", StringComparison.OrdinalIgnoreCase) >= 0)
                 {
                     attackStateHash = state.fullPathHash;
                     return true;
