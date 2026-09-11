@@ -61,6 +61,12 @@ public class PlayerController : MonoBehaviour
         SendStatus();
     }
 
+    public void FinishAttack()
+    {
+        _isAttacking = false;
+        _rb.gravityScale = 8; // Restore gravity scale after attack
+    }
+
     private void FixedUpdate()
     {
         UpdateCharacter();
@@ -92,10 +98,22 @@ public class PlayerController : MonoBehaviour
             else if (_attackInput)
             {
                 _isAttacking = true;
-                _rb.linearVelocityX = 0;
-                StartCoroutine(Attack());
+                _animator.SetTrigger("Attack");
             }
             if (!_isAttacking) _rb.linearVelocity = new Vector2(_moveInput.x * _walkSpeed, _rb.linearVelocity.y);
+        }
+        else
+        {
+            if (_attackInput)
+            {
+                _isAttacking = true;
+                _animator.SetTrigger("Attack");
+
+                // Zero out current velocity so they don't slide or keep moving up/down
+                _rb.linearVelocity = Vector2.zero;
+                // Set gravity scale to 0 to prevent falling during the attack
+                _rb.gravityScale = 0;
+            }
         }
 
         _attackInput = false;
@@ -123,45 +141,6 @@ public class PlayerController : MonoBehaviour
     private void OnAttack()
     {
         _attackInput = true;
-    }
-
-    // TODO: Instead use an attack event in the animation itself and respond to that here
-    IEnumerator Attack()
-    {
-        _animator.SetTrigger("Attack");
-        // Wait until the animator enters an attack state, capture its state hash,
-        // then wait until we leave that state. This ensures we wait specifically
-        // for the attack state's exit instead of relying on normalizedTime of
-        // whatever state is current (which could be Idle).
-        int attackStateHash = 0;
-        yield return new WaitUntil(() =>
-        {
-            var state = _animator.GetCurrentAnimatorStateInfo(0);
-            // Common state name checks: exact name or in "Base Layer.Name" form
-            if (state.IsName("Attack") || state.IsName("Base Layer.Attack"))
-            {
-                attackStateHash = state.fullPathHash;
-                return true;
-            }
-
-            // As a fallback, check the current clip name contains "Punch" (useful for variant clips)
-            var clips = _animator.GetCurrentAnimatorClipInfo(0);
-            if (clips != null && clips.Length > 0 && clips[0].clip != null)
-            {
-                if (clips[0].clip.name.IndexOf("Attack", StringComparison.OrdinalIgnoreCase) >= 0)
-                {
-                    attackStateHash = state.fullPathHash;
-                    return true;
-                }
-            }
-
-            return false;
-        });
-
-        // Wait while the animator is still in the captured attack state
-        yield return new WaitWhile(() => _animator.GetCurrentAnimatorStateInfo(0).fullPathHash == attackStateHash);
-
-        _isAttacking = false;
     }
 
     private void OnDrawGizmosSelected()
