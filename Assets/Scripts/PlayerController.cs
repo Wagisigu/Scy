@@ -9,7 +9,7 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(Animator))]
 
-public class PlayerController : MonoBehaviour, IDamageable
+public class PlayerController : MonoBehaviour, IHealth
 {
 
     public static PlayerController Instance;
@@ -80,6 +80,17 @@ public class PlayerController : MonoBehaviour, IDamageable
 
         // Initiate death sequence if health goes to 0.
         if (_currentHealth == 0) Die();
+    }
+
+    public bool Heal(int hp)
+    {
+        // If health is at max, don't pick up the hp
+        if (_currentHealth == _maxHealth) return false;
+
+        // Set health to max if total goes above max
+        _currentHealth = Math.Min(_maxHealth, _currentHealth + hp);
+        Debug.Log($"Player was healed for {hp} health! Current health: {_currentHealth}");
+        return true;
     }
 
     private void Die()

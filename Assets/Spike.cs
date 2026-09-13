@@ -16,7 +16,7 @@ public class Hazard : MonoBehaviour
 
     private void TryDealDamage(Collider2D collision)
     {
-        if (collision.TryGetComponent<IDamageable>(out var damageable))
+        if (collision.TryGetComponent<IHealth>(out var damageable))
         {
             damageable.TakeDamage(_damageAmount);
         }
