@@ -9,12 +9,19 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(Animator))]
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : MonoBehaviour, IDamageable
 {
 
     public static PlayerController Instance;
     private Rigidbody2D _rb;
     private Animator _animator;
+
+    [Header("Health Settings")]
+    [SerializeField] private int _maxHealth = 10;
+    [SerializeField] private int _currentHealth = 4;
+    [SerializeField] private float _invulDuration = 1.0f;
+    private float _lastDamageTime = -Mathf.Infinity;
+    public bool IsInvulnerable => Time.time < _lastDamageTime + _invulDuration;
 
     [Header("Horizontal Movement Settings")]
     [SerializeField] private float _walkSpeed = 1;
@@ -59,6 +66,25 @@ public class PlayerController : MonoBehaviour
     {
         UpdateStatus();
         SendStatus();
+    }
+
+    public void TakeDamage(int damage)
+    {
+        if (IsInvulnerable) return;
+
+        _lastDamageTime = Time.time;
+
+        // Set health to 0 if total damage causes health to go negative
+        _currentHealth = Math.Max(0, _currentHealth - damage);
+        Debug.Log($"Player took {damage} damage! Remaining: {_currentHealth}");
+
+        // Initiate death sequence if health goes to 0.
+        if (_currentHealth == 0) Die();
+    }
+
+    private void Die()
+    {
+        Destroy(gameObject);
     }
 
     public void FinishAttack()
