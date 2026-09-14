@@ -8,12 +8,13 @@ using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(Animator))]
-
+[RequireComponent(typeof(Health))]
 public class PlayerController : MonoBehaviour
 {
 
     public static PlayerController Instance;
     private Rigidbody2D _rb;
+    private Health _health;
     private Animator _animator;
 
     [Header("Horizontal Movement Settings")]
@@ -36,6 +37,10 @@ public class PlayerController : MonoBehaviour
 
     private void Awake()
     {
+        _rb = GetComponent<Rigidbody2D>();
+        _animator = GetComponent<Animator>();
+        _health = GetComponent<Health>();
+
         if (Instance == null)
         {
             Instance = this;
@@ -50,8 +55,7 @@ public class PlayerController : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        _rb = GetComponent<Rigidbody2D>();
-        _animator = GetComponent<Animator>();
+        
     }
 
     // Update is called once per frame
@@ -59,6 +63,31 @@ public class PlayerController : MonoBehaviour
     {
         UpdateStatus();
         SendStatus();
+    }
+
+    private void OnEnable()
+    {
+        // Subscribe to event listeners
+        _health.OnHealthChanged.AddListener(HandleHealthChanged);
+        _health.OnDeath.AddListener(HandleDeath);
+    }
+
+    private void OnDisable()
+    {
+        // Unsubscribe from event listeners
+        _health.OnHealthChanged.RemoveListener(HandleHealthChanged);
+        _health.OnDeath.RemoveListener(HandleDeath);
+    }
+
+    private void HandleHealthChanged(int currentHealth, int maxHealth)
+    {
+        Debug.Log($"Player Health Updated: {currentHealth} / {maxHealth}");
+    }
+
+    private void HandleDeath()
+    {
+        Debug.Log("Player died!");
+        Destroy(gameObject);
     }
 
     public void FinishAttack()
