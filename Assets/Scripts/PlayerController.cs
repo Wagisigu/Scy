@@ -8,20 +8,14 @@ using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(Animator))]
-
-public class PlayerController : MonoBehaviour, IHealth
+[RequireComponent(typeof(Health))]
+public class PlayerController : MonoBehaviour
 {
 
     public static PlayerController Instance;
     private Rigidbody2D _rb;
+    private Health _health;
     private Animator _animator;
-
-    [Header("Health Settings")]
-    [SerializeField] private int _maxHealth = 10;
-    [SerializeField] private int _currentHealth = 4;
-    [SerializeField] private float _invulDuration = 1.0f;
-    private float _lastDamageTime = -Mathf.Infinity;
-    public bool IsInvulnerable => Time.time < _lastDamageTime + _invulDuration;
 
     [Header("Horizontal Movement Settings")]
     [SerializeField] private float _walkSpeed = 1;
@@ -43,6 +37,10 @@ public class PlayerController : MonoBehaviour, IHealth
 
     private void Awake()
     {
+        _rb = GetComponent<Rigidbody2D>();
+        _animator = GetComponent<Animator>();
+        _health = GetComponent<Health>();
+
         if (Instance == null)
         {
             Instance = this;
@@ -57,8 +55,7 @@ public class PlayerController : MonoBehaviour, IHealth
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        _rb = GetComponent<Rigidbody2D>();
-        _animator = GetComponent<Animator>();
+        
     }
 
     // Update is called once per frame
@@ -68,33 +65,28 @@ public class PlayerController : MonoBehaviour, IHealth
         SendStatus();
     }
 
-    public void TakeDamage(int damage)
+    private void OnEnable()
     {
-        if (IsInvulnerable) return;
-
-        _lastDamageTime = Time.time;
-
-        // Set health to 0 if total damage causes health to go negative
-        _currentHealth = Math.Max(0, _currentHealth - damage);
-        Debug.Log($"Player took {damage} damage! Remaining: {_currentHealth}");
-
-        // Initiate death sequence if health goes to 0.
-        if (_currentHealth == 0) Die();
+        // Subscribe to event listeners
+        _health.OnHealthChanged.AddListener(HandleHealthChanged);
+        _health.OnDeath.AddListener(HandleDeath);
     }
 
-    public bool Heal(int hp)
+    private void OnDisable()
     {
-        // If health is at max, don't pick up the hp
-        if (_currentHealth == _maxHealth) return false;
-
-        // Set health to max if total goes above max
-        _currentHealth = Math.Min(_maxHealth, _currentHealth + hp);
-        Debug.Log($"Player was healed for {hp} health! Current health: {_currentHealth}");
-        return true;
+        // Unsubscribe from event listeners
+        _health.OnHealthChanged.RemoveListener(HandleHealthChanged);
+        _health.OnDeath.RemoveListener(HandleDeath);
     }
 
-    private void Die()
+    private void HandleHealthChanged(int currentHealth, int maxHealth)
     {
+        Debug.Log($"Player Health Updated: {currentHealth} / {maxHealth}");
+    }
+
+    private void HandleDeath()
+    {
+        Debug.Log("Player died!");
         Destroy(gameObject);
     }
 

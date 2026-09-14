@@ -271,6 +271,7 @@ GameObject:
   - component: {fileID: 267925804}
   - component: {fileID: 267925803}
   - component: {fileID: 267925807}
+  - component: {fileID: 267925810}
   - component: {fileID: 267925808}
   - component: {fileID: 267925809}
   m_Layer: 0
@@ -441,9 +442,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d145e3e06f8cfb042bff7c012f3bd465, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  _maxHealth: 10
-  _currentHealth: 8
-  _invulDuration: 1
   _walkSpeed: 10
   _jumpForce: 30
   groundCheckPoint: {fileID: 1322596552}
@@ -503,6 +501,30 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &267925810
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 267925802}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4502ad32a67e8e84d825b4dfc344eb46, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Health
+  _maxHealth: 10
+  _currentHealth: 0
+  _invulDuration: 1
+  OnHealthChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  OnDamaged:
+    m_PersistentCalls:
+      m_Calls: []
+  OnDeath:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &331062389
 GameObject:
   m_ObjectHideFlags: 0

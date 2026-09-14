@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class Hazard : MonoBehaviour
+public class Spike : MonoBehaviour
 {
     [SerializeField] private int _damageAmount = 1;
 
@@ -16,9 +16,9 @@ public class Hazard : MonoBehaviour
 
     private void TryDealDamage(Collider2D collision)
     {
-        if (collision.TryGetComponent<IHealth>(out var damageable))
+        if (collision.TryGetComponent<IDamageable>(out var damageable))
         {
-            damageable.TakeDamage(_damageAmount);
+            damageable?.TakeDamage(_damageAmount);
         }
     }
 }

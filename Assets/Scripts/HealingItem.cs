@@ -19,7 +19,7 @@ public class HealingItem : MonoBehaviour
     {
         if (_isConsumed) return;
 
-        if (collision.TryGetComponent<IHealth>(out var target))
+        if (collision.TryGetComponent<IHealable>(out var target))
         {
             // Destroy the health pickup if it was consumed
             if (target.Heal(_healAmount))
@@ -36,5 +36,4 @@ public class HealingItem : MonoBehaviour
             }
         }
     }
-
 }
