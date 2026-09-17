@@ -13,33 +13,53 @@ public class PlayerController : MonoBehaviour
 {
 
     public static PlayerController Instance;
-    private Rigidbody2D _rb;
+    public Rigidbody2D _rb { get; private set; }
     private Health _health;
-    private Animator _animator;
+    public Animator _animator { get; private set; }
 
     [Header("Horizontal Movement Settings")]
-    [SerializeField] private float _walkSpeed = 1;
-    private Vector2 _moveInput;
+    [SerializeField] public float _walkSpeed = 1;
+    public Vector2 _moveInput { get; private set; }
 
     [Header("Jump Movement Settings")]
     [SerializeField] private float _jumpForce = 1;
+    [SerializeField] private Vector2 _wallJumpForce = Vector2.one;
+    [SerializeField] private float _jumpBufferTime = 0.2f;
+    [SerializeField] private float _wallSlideGravityScale = 0.5f;
     private bool _jumpInput;
 
     [Header("Ground Check Setup")]
     [SerializeField] private Transform groundCheckPoint;
+    [SerializeField] private Transform wallCheckPoint;
     [SerializeField] private float checkRadius = 0.2f;
     [SerializeField] private LayerMask groundLayer;
 
+    private float _normalGravityScale = 1.0f;
     private bool _attackInput;
     private bool _isAttacking;
+    private bool _isWallSliding;
+    private int _directionOfWall; // 1 for right, -1 for left, 0 for no wall
+    private bool _canInput = true;
 
     private bool _isGrounded;
+    private bool _isWalled;
+
+    private PlayerStateMachineManager _stateMachineManager { get; set; }
+    private PlayerState _playerGroundState { get; set; }
+    private PlayerState _playerAirState { get; set; }
+    private PlayerState _playerWallState { get; set; }
 
     private void Awake()
     {
         _rb = GetComponent<Rigidbody2D>();
         _animator = GetComponent<Animator>();
         _health = GetComponent<Health>();
+        _normalGravityScale = _rb.gravityScale;
+
+        _stateMachineManager = new PlayerStateMachineManager();
+        _playerGroundState = new PlayerGroundState(this);
+        _playerAirState = new PlayerAirState(this);
+        _playerWallState = new PlayerWallState(this);
 
         if (Instance == null)
         {
@@ -55,14 +75,14 @@ public class PlayerController : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+        _stateMachineManager.Initialize(_playerGroundState);
     }
 
     // Update is called once per frame
     void Update()
     {
-        UpdateStatus();
-        SendStatus();
+        Flip();
+        _stateMachineManager.Update();
     }
 
     private void OnEnable()
@@ -93,17 +113,23 @@ public class PlayerController : MonoBehaviour
     public void FinishAttack()
     {
         _isAttacking = false;
-        _rb.gravityScale = 8; // Restore gravity scale after attack
+        _rb.gravityScale = _normalGravityScale; // Restore gravity scale after attack
     }
 
     private void FixedUpdate()
     {
-        UpdateCharacter();
+        _stateMachineManager.FixedUpdate();
     }
 
     private void UpdateStatus()
     {
         _isGrounded = Physics2D.OverlapCircle(groundCheckPoint.position, checkRadius, groundLayer);
+        bool isWalled = Physics2D.OverlapCircle(wallCheckPoint.position, checkRadius, groundLayer);
+        if (isWalled && !_isWalled)
+        {
+            _directionOfWall = (int) transform.localScale.x; // Determine the direction of the wall based on character facing
+        }
+        _isWalled = isWalled;
     }
 
     private void Flip()
@@ -118,31 +144,55 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    private bool CanFlip()
+    {
+        return !_isAttacking && !_isWallSliding;
+    }
+
     private void UpdateCharacter()
     {
-        Flip();
-        if (_isGrounded)
-        {
-            if (!_isAttacking && _jumpInput) _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, _jumpForce);
-            else if (_attackInput)
-            {
-                _isAttacking = true;
-                _animator.SetTrigger("Attack");
-            }
-            if (!_isAttacking) _rb.linearVelocity = new Vector2(_moveInput.x * _walkSpeed, _rb.linearVelocity.y);
-        }
-        else
-        {
-            if (_attackInput)
-            {
-                _isAttacking = true;
-                _animator.SetTrigger("Attack");
+        // Flip the character based on movement input
+        if (CanFlip()) Flip();
 
-                // Zero out current velocity so they don't slide or keep moving up/down
-                _rb.linearVelocity = Vector2.zero;
-                // Set gravity scale to 0 to prevent falling during the attack
-                _rb.gravityScale = 0;
+        // Move the character horizontally based on input
+        if (_canInput) _rb.linearVelocityX = _moveInput.x * _walkSpeed;
+
+        // Handle queued jump input
+        if (_jumpInput && _isGrounded)
+        {
+            _rb.linearVelocityY = _jumpForce;
+        }
+
+        // Handle queued attack input
+        if (_attackInput && !_isAttacking)
+        {
+            _isAttacking = true;
+            _rb.gravityScale = 0; // Disable gravity during attack
+            _animator.SetTrigger("Attack");
+        }
+
+        // Handle wall sliding
+        if (_isWalled && !_isGrounded)
+        {
+            // Handle first frame of wall sliding
+            if (!_isWallSliding)
+            {
+                _isWallSliding = true;
+                _rb.gravityScale = _wallSlideGravityScale;
+                _rb.linearVelocityY = 0;
             }
+
+            // Handle jump input while wall sliding
+            if (_jumpInput)
+            {
+                _rb.linearVelocity = new Vector2(_wallJumpForce.x * -_directionOfWall, _wallJumpForce.y);
+                StartCoroutine(SuspendControl(_jumpBufferTime)); // Suspend control for a short duration after wall jump
+            }
+        }
+        else if (_isWallSliding)
+        {
+            _isWallSliding = false;
+            _rb.gravityScale = _normalGravityScale; // Restore gravity scale after wall slide
         }
 
         _attackInput = false;
@@ -154,22 +204,33 @@ public class PlayerController : MonoBehaviour
         _animator.SetBool("IsGrounded", _isGrounded);
         _animator.SetFloat("HorizontalSpeed", Mathf.Abs(_rb.linearVelocityX));
         _animator.SetFloat("VerticalSpeed", _rb.linearVelocityY);
+        _animator.SetBool("IsWalled", _isWalled);
+    }
+
+    private IEnumerator SuspendControl(float duration)
+    {
+        _canInput = false;
+        _jumpInput = false;
+        _attackInput = false;
+        _moveInput = Vector2.zero;
+        yield return new WaitForSeconds(duration);
+        _canInput = true;
     }
 
     // Input handling
     private void OnMove(InputValue inputValue)
     {
-        _moveInput = inputValue.Get<Vector2>();
+        if (_canInput) _moveInput = inputValue.Get<Vector2>();
     }
 
     private void OnJump()
     {
-        _jumpInput = true; 
+        if (_canInput) _jumpInput = true;
     }
 
     private void OnAttack()
     {
-        _attackInput = true;
+        if (_canInput) _attackInput = true;
     }
 
     private void OnDrawGizmosSelected()
