@@ -2,28 +2,8 @@ using UnityEngine;
 
 public class PlayerWallState : PlayerState
 {
-    public PlayerWallState(PlayerController playerController) : base(playerController)
+    public PlayerWallState(PlayerController playerController, PlayerInputHandler inputHandler, PlayerData playerData, PlayerStateMachine stateMachine, string animationName) : base(playerController, inputHandler, playerData, stateMachine, animationName)
     {
         
-    }
-
-    public override void Update()
-    {
-
-    }
-
-    public override void FixedUpdate()
-    {
-
-    }
-
-    public override void OnEnter()
-    {
-
-    }
-
-    public override void OnExit()
-    {
-
     }
 }

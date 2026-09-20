@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class PlayerStateMachineManager
+public class PlayerStateMachine
 {
     private PlayerState _currentPlayerState;
 

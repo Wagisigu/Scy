@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Data;
+using Unity.InferenceEngine.Tokenization.PreTokenizers;
 using Unity.VisualScripting;
 using UnityEditor.Tilemaps;
 using UnityEngine;
@@ -13,53 +14,47 @@ public class PlayerController : MonoBehaviour
 {
 
     public static PlayerController Instance;
-    public Rigidbody2D _rb { get; private set; }
+    private Rigidbody2D _rb;
     private Health _health;
-    public Animator _animator { get; private set; }
-
-    [Header("Horizontal Movement Settings")]
-    [SerializeField] public float _walkSpeed = 1;
-    public Vector2 _moveInput { get; private set; }
-
-    [Header("Jump Movement Settings")]
-    [SerializeField] private float _jumpForce = 1;
-    [SerializeField] private Vector2 _wallJumpForce = Vector2.one;
-    [SerializeField] private float _jumpBufferTime = 0.2f;
-    [SerializeField] private float _wallSlideGravityScale = 0.5f;
-    private bool _jumpInput;
+    private Animator _animator;
 
     [Header("Ground Check Setup")]
-    [SerializeField] private Transform groundCheckPoint;
-    [SerializeField] private Transform wallCheckPoint;
-    [SerializeField] private float checkRadius = 0.2f;
-    [SerializeField] private LayerMask groundLayer;
+    [SerializeField] private Transform _groundCheckPoint;
+    [SerializeField] private Transform _wallCheckPoint;
+    [SerializeField] private float _checkRadius = 0.2f;
+    [SerializeField] private LayerMask _groundLayer;
+    public bool IsGrounded;
+    public bool IsWalled;
 
-    private float _normalGravityScale = 1.0f;
-    private bool _attackInput;
-    private bool _isAttacking;
-    private bool _isWallSliding;
-    private int _directionOfWall; // 1 for right, -1 for left, 0 for no wall
-    private bool _canInput = true;
+    [SerializeField] private PlayerData _playerData;
+    private PlayerInputHandler _inputHandler;
 
-    private bool _isGrounded;
-    private bool _isWalled;
-
-    private PlayerStateMachineManager _stateMachineManager { get; set; }
-    private PlayerState _playerGroundState { get; set; }
-    private PlayerState _playerAirState { get; set; }
-    private PlayerState _playerWallState { get; set; }
+    public PlayerStateMachine StateMachine { get; private set; }
+    public PlayerState GroundState { get; private set; }
+    public PlayerState WalkState { get; private set; }
+    public PlayerState IdleState { get; private set; }
+    public PlayerState ActionState { get; private set; }
+    public PlayerState JumpState { get; private set; }
+    public PlayerState AttackState { get; private set; }
+    public PlayerState AirState { get; private set; }
+    public PlayerState WallState { get; private set; }
 
     private void Awake()
     {
         _rb = GetComponent<Rigidbody2D>();
         _animator = GetComponent<Animator>();
         _health = GetComponent<Health>();
-        _normalGravityScale = _rb.gravityScale;
+        _inputHandler = GetComponent<PlayerInputHandler>();
 
-        _stateMachineManager = new PlayerStateMachineManager();
-        _playerGroundState = new PlayerGroundState(this);
-        _playerAirState = new PlayerAirState(this);
-        _playerWallState = new PlayerWallState(this);
+        StateMachine = new PlayerStateMachine();
+        GroundState = new PlayerGroundState(this, _inputHandler, _playerData, StateMachine, "");
+        WalkState = new PlayerWalkState(this, _inputHandler, _playerData, StateMachine, "Walking");
+        IdleState = new PlayerIdleState(this, _inputHandler, _playerData, StateMachine, "Idle");
+        ActionState = new PlayerActionState(this, _inputHandler, _playerData, StateMachine, "");
+        JumpState = new PlayerJumpState(this, _inputHandler, _playerData, StateMachine, "");
+        AttackState = new PlayerAttackState(this, _inputHandler, _playerData, StateMachine, "Attacking");
+        AirState = new PlayerAirState(this, _inputHandler, _playerData, StateMachine, "Airborne");
+        WallState = new PlayerWallState(this, _inputHandler, _playerData, StateMachine, "WallSliding");
 
         if (Instance == null)
         {
@@ -73,16 +68,36 @@ public class PlayerController : MonoBehaviour
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public void Start()
     {
-        _stateMachineManager.Initialize(_playerGroundState);
+        StateMachine.Initialize(IdleState);
     }
 
     // Update is called once per frame
-    void Update()
+    public void Update()
     {
+        _animator.SetFloat("VerticalSpeed", _rb.linearVelocityY);
+        _animator.SetFloat("HorizontalSpeed", _rb.linearVelocityX);
+        IsGrounded = Physics2D.OverlapCircle(_groundCheckPoint.position, _checkRadius, _groundLayer);
+        IsWalled = Physics2D.OverlapCircle(_wallCheckPoint.position, _checkRadius, _groundLayer);
+        StateMachine.Update();
+    }
+
+    public void MoveX(float x)
+    {
+        _rb.linearVelocityX = x;
         Flip();
-        _stateMachineManager.Update();
+    }
+
+    public void MoveY(float y)
+    {
+        _rb.linearVelocityY = y;
+    }
+
+    public void PlayAnimation(string animationName)
+    {
+        print("Playing animation: " + animationName);
+        _animator.Play(animationName);
     }
 
     private void OnEnable()
@@ -110,135 +125,34 @@ public class PlayerController : MonoBehaviour
         Destroy(gameObject);
     }
 
-    public void FinishAttack()
-    {
-        _isAttacking = false;
-        _rb.gravityScale = _normalGravityScale; // Restore gravity scale after attack
-    }
-
     private void FixedUpdate()
     {
-        _stateMachineManager.FixedUpdate();
-    }
-
-    private void UpdateStatus()
-    {
-        _isGrounded = Physics2D.OverlapCircle(groundCheckPoint.position, checkRadius, groundLayer);
-        bool isWalled = Physics2D.OverlapCircle(wallCheckPoint.position, checkRadius, groundLayer);
-        if (isWalled && !_isWalled)
-        {
-            _directionOfWall = (int) transform.localScale.x; // Determine the direction of the wall based on character facing
-        }
-        _isWalled = isWalled;
+        StateMachine.FixedUpdate();
     }
 
     private void Flip()
     {
-        if (_moveInput.x > 0)
+        if (_inputHandler.MoveInput.x > 0)
         {
             transform.localScale = new Vector3(1, 1, 1);
         }
-        else if (_moveInput.x < 0)
+        else if (_inputHandler.MoveInput.x < 0)
         {
             transform.localScale = new Vector3(-1, 1, 1);
         }
     }
 
-    private bool CanFlip()
-    {
-        return !_isAttacking && !_isWallSliding;
-    }
-
-    private void UpdateCharacter()
-    {
-        // Flip the character based on movement input
-        if (CanFlip()) Flip();
-
-        // Move the character horizontally based on input
-        if (_canInput) _rb.linearVelocityX = _moveInput.x * _walkSpeed;
-
-        // Handle queued jump input
-        if (_jumpInput && _isGrounded)
-        {
-            _rb.linearVelocityY = _jumpForce;
-        }
-
-        // Handle queued attack input
-        if (_attackInput && !_isAttacking)
-        {
-            _isAttacking = true;
-            _rb.gravityScale = 0; // Disable gravity during attack
-            _animator.SetTrigger("Attack");
-        }
-
-        // Handle wall sliding
-        if (_isWalled && !_isGrounded)
-        {
-            // Handle first frame of wall sliding
-            if (!_isWallSliding)
-            {
-                _isWallSliding = true;
-                _rb.gravityScale = _wallSlideGravityScale;
-                _rb.linearVelocityY = 0;
-            }
-
-            // Handle jump input while wall sliding
-            if (_jumpInput)
-            {
-                _rb.linearVelocity = new Vector2(_wallJumpForce.x * -_directionOfWall, _wallJumpForce.y);
-                StartCoroutine(SuspendControl(_jumpBufferTime)); // Suspend control for a short duration after wall jump
-            }
-        }
-        else if (_isWallSliding)
-        {
-            _isWallSliding = false;
-            _rb.gravityScale = _normalGravityScale; // Restore gravity scale after wall slide
-        }
-
-        _attackInput = false;
-        _jumpInput = false;
-    }
-
-    private void SendStatus()
-    {
-        _animator.SetBool("IsGrounded", _isGrounded);
-        _animator.SetFloat("HorizontalSpeed", Mathf.Abs(_rb.linearVelocityX));
-        _animator.SetFloat("VerticalSpeed", _rb.linearVelocityY);
-        _animator.SetBool("IsWalled", _isWalled);
-    }
-
-    private IEnumerator SuspendControl(float duration)
-    {
-        _canInput = false;
-        _jumpInput = false;
-        _attackInput = false;
-        _moveInput = Vector2.zero;
-        yield return new WaitForSeconds(duration);
-        _canInput = true;
-    }
-
-    // Input handling
-    private void OnMove(InputValue inputValue)
-    {
-        if (_canInput) _moveInput = inputValue.Get<Vector2>();
-    }
-
-    private void OnJump()
-    {
-        if (_canInput) _jumpInput = true;
-    }
-
-    private void OnAttack()
-    {
-        if (_canInput) _attackInput = true;
-    }
-
     private void OnDrawGizmosSelected()
     {
-        if (groundCheckPoint != null)
+        if (_groundCheckPoint != null)
         {
             Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(groundCheckPoint.position, checkRadius);
+            Gizmos.DrawWireSphere(_groundCheckPoint.position, _checkRadius);
         }
+    }
+
+    public void PrintMessage(string Message)
+    {
+        print(Message);
     }
 }

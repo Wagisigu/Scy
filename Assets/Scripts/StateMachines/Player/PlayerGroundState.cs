@@ -3,36 +3,40 @@ using UnityEngine;
 public class PlayerGroundState : PlayerState
 {
 
-    public PlayerGroundState(PlayerController playerController) : base(playerController)
+    public PlayerGroundState(PlayerController playerController, PlayerInputHandler inputHandler, PlayerData playerData, PlayerStateMachine stateMachine, string animationName) : 
+        base(playerController, inputHandler, playerData, stateMachine, animationName)
     {
         
     }
 
     public override void Update()
     {
-        if (_playerController._moveInput.x != 0)
+        base.Update();
+
+        if (_inputHandler.JumpInput)
         {
-            _playerController._animator.Play("Walk");
+            _stateMachine.ChangeState(_playerController.JumpState);
+            _inputHandler.UseJumpInput();
         }
-        else
+        else if (!_playerController.IsGrounded)
         {
-            _playerController._animator.Play("Idle");
+            _stateMachine.ChangeState(_playerController.AirState);
         }
     }
 
     public override void FixedUpdate()
     {
-        _playerController._rb.linearVelocityX = _playerController._moveInput.x * _playerController._walkSpeed;
+        base.FixedUpdate();
     }
 
     public override void OnEnter()
     {
-        _playerController._animator.Play("Idle");
+        base.OnEnter();
     }
 
     public override void OnExit()
     {
-
+        base.OnExit();
     }
 
 

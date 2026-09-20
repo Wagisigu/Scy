@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class AttackStateMachine : StateMachineBehaviour
+public class AttackState : StateMachineBehaviour
 {
     // OnStateEnter is called when a transition starts and the state machine starts to evaluate this state
     //override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
@@ -17,11 +17,7 @@ public class AttackStateMachine : StateMachineBehaviour
     // OnStateExit is called when a transition ends and the state machine finishes evaluating this state
     override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        PlayerController player = animator.GetComponent<PlayerController>();
-        if (player != null)
-        {
-            player.FinishAttack();
-        }
+        ((PlayerAttackState) animator.GetComponentInParent<PlayerController>().AttackState).AttackFinished();
     }
 
     // OnStateMove is called right after Animator.OnAnimatorMove()
