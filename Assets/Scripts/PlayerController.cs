@@ -7,8 +7,9 @@ using UnityEngine;
 [RequireComponent(typeof(PlayerInputHandler))]
 public class PlayerController : MonoBehaviour
 {
-
+    #region Singleton
     public static PlayerController Instance;
+    #endregion
 
     #region Component References
     private Rigidbody2D _rb;
@@ -26,6 +27,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private LayerMask _groundLayer;
     public bool IsGrounded;
     public bool IsWalled;
+    public int WallDirection { get; private set; } // 1 for right wall, -1 for left wall
     #endregion
 
     #region State Machine
@@ -38,16 +40,24 @@ public class PlayerController : MonoBehaviour
     public PlayerState WallState { get; private set; }
     #endregion
 
+    #region Movement Control
     private float _initialGravity;
     private bool _isMovementControlLocked = false; // Flag to lock velocity changes
-    public int WallDirection { get; private set; } // 1 for right wall, -1 for left wall
+    #endregion
 
+    #region Unity Lifecycle
     private void Awake()
     {
         _rb = GetComponent<Rigidbody2D>();
         _animator = GetComponent<Animator>();
         _health = GetComponent<Health>();
         _inputHandler = GetComponent<PlayerInputHandler>();
+
+        if (_playerData == null)
+        {
+            Debug.LogError("PlayerData is not assigned! Please assign PlayerData in the Inspector.");
+            return;
+        }
 
         StateMachine = new PlayerStateMachine();
         WalkState = new PlayerWalkState(this, _inputHandler, _playerData, StateMachine, "Walking");
@@ -93,6 +103,27 @@ public class PlayerController : MonoBehaviour
         StateMachine.Update();
     }
 
+    private void FixedUpdate()
+    {
+        StateMachine.FixedUpdate();
+    }
+
+    private void OnEnable()
+    {
+        // Subscribe to event listeners
+        _health.OnHealthChanged.AddListener(HandleHealthChanged);
+        _health.OnDeath.AddListener(HandleDeath);
+    }
+
+    private void OnDisable()
+    {
+        // Unsubscribe from event listeners
+        _health.OnHealthChanged.RemoveListener(HandleHealthChanged);
+        _health.OnDeath.RemoveListener(HandleDeath);
+    }
+    #endregion
+
+    #region Movement & Velocity
     public void SetVelocityX(float x, float lockControl = 0)
     {
         if (_isMovementControlLocked) return;
@@ -115,7 +146,9 @@ public class PlayerController : MonoBehaviour
         _rb.linearVelocity = velocity;
         Flip();
     }
+    #endregion
 
+    #region Gravity Control
     public void DisableGravity()
     {
         _rb.gravityScale = 0;
@@ -125,12 +158,16 @@ public class PlayerController : MonoBehaviour
     {
         _rb.gravityScale = _initialGravity;
     }
+    #endregion
 
+    #region Animation
     public void PlayAnimation(string animationName)
     {
         _animator.Play(animationName);
     }
+    #endregion
 
+    #region Movement Control
     public void LockMovementControlForSecs(float seconds)
     {
         _isMovementControlLocked = true;
@@ -142,37 +179,9 @@ public class PlayerController : MonoBehaviour
         yield return new WaitForSeconds(seconds);
         _isMovementControlLocked = false;
     }
+    #endregion
 
-    private void OnEnable()
-    {
-        // Subscribe to event listeners
-        _health.OnHealthChanged.AddListener(HandleHealthChanged);
-        _health.OnDeath.AddListener(HandleDeath);
-    }
-
-    private void OnDisable()
-    {
-        // Unsubscribe from event listeners
-        _health.OnHealthChanged.RemoveListener(HandleHealthChanged);
-        _health.OnDeath.RemoveListener(HandleDeath);
-    }
-
-    private void HandleHealthChanged(int currentHealth, int maxHealth)
-    {
-        Debug.Log($"Player Health Updated: {currentHealth} / {maxHealth}");
-    }
-
-    private void HandleDeath()
-    {
-        Debug.Log("Player died!");
-        Destroy(gameObject);
-    }
-
-    private void FixedUpdate()
-    {
-        StateMachine.FixedUpdate();
-    }
-
+    #region Facing Direction
     private void Flip()
     {
         if (_inputHandler.MoveInput.x > 0)
@@ -196,6 +205,26 @@ public class PlayerController : MonoBehaviour
             transform.localScale = new Vector3(-1, 1, 1);
         }
     }
+    #endregion
+
+    #region Event Handlers
+    private void HandleHealthChanged(int currentHealth, int maxHealth)
+    {
+        Debug.Log($"Player Health Updated: {currentHealth} / {maxHealth}");
+    }
+
+    private void HandleDeath()
+    {
+        Debug.Log("Player died!");
+        Destroy(gameObject);
+    }
+    #endregion
+
+    #region Utility & Debug
+    public void PrintMessage(string Message)
+    {
+        print(Message);
+    }
 
     private void OnDrawGizmosSelected()
     {
@@ -205,9 +234,5 @@ public class PlayerController : MonoBehaviour
             Gizmos.DrawWireSphere(_groundCheckPoint.position, _checkRadius);
         }
     }
-
-    public void PrintMessage(string Message)
-    {
-        print(Message);
-    }
+    #endregion
 }

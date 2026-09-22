@@ -2,12 +2,15 @@ using UnityEngine;
 
 public abstract class PlayerState
 {
+    #region Protected References
     protected PlayerController _playerController;
     protected PlayerInputHandler _inputHandler;
     protected PlayerData _playerData;
     protected PlayerStateMachine _stateMachine;
     protected string _animationName;
+    #endregion
 
+    #region Constructor
     public PlayerState(PlayerController playerController, PlayerInputHandler inputHandler, PlayerData playerData, PlayerStateMachine stateMachine, string animationName)
     {
         _playerController = playerController;
@@ -16,17 +19,9 @@ public abstract class PlayerState
         _stateMachine = stateMachine;
         _animationName = animationName;
     }
+    #endregion
 
-    // Update is called once per frame
-    public virtual void Update()
-    {
-    }
-
-    public virtual void FixedUpdate()
-    {
-
-    }
-
+    #region State Lifecycle
     public virtual void OnEnter()
     {
         if (!string.IsNullOrEmpty(_animationName))
@@ -37,7 +32,16 @@ public abstract class PlayerState
 
     public virtual void OnExit()
     {
+    }
+    #endregion
 
+    #region State Updates
+    public virtual void Update()
+    {
     }
 
+    public virtual void FixedUpdate()
+    {
+    }
+    #endregion
 }

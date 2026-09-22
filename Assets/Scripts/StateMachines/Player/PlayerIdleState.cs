@@ -2,16 +2,13 @@ using UnityEngine;
 
 public class PlayerIdleState : PlayerGroundState
 {
+    #region Constructor
     public PlayerIdleState(PlayerController playerController, PlayerInputHandler inputHandler, PlayerData playerData, PlayerStateMachine stateMachine, string animationName) : base(playerController, inputHandler, playerData, stateMachine, animationName)
     {
     }
+    #endregion
 
-    public override void FixedUpdate()
-    {
-        base.FixedUpdate(); 
-        _playerController.SetVelocityX(0);
-    }
-
+    #region State Lifecycle
     public override void OnEnter()
     {
         base.OnEnter();
@@ -21,7 +18,9 @@ public class PlayerIdleState : PlayerGroundState
     {
         base.OnExit();
     }
+    #endregion
 
+    #region State Updates
     public override void Update()
     {
         base.Update();
@@ -30,4 +29,11 @@ public class PlayerIdleState : PlayerGroundState
             _stateMachine.ChangeState(_playerController.WalkState);
         }
     }
+
+    public override void FixedUpdate()
+    {
+        base.FixedUpdate(); 
+        _playerController.SetVelocityX(0);
+    }
+    #endregion
 }
