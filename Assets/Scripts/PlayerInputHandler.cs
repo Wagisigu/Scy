@@ -6,17 +6,17 @@ public class PlayerInputHandler : MonoBehaviour
 
     public Vector2 MoveInput { get; private set; }
     public bool JumpInput { get; private set; }
-    [SerializeField] private float _jumpInputBufferTime = 0.2f;
+    [SerializeField] private float _jumpInputBufferTime = 0.01f;
     private float _jumpInputStartedTime;
 
     public bool AttackInput { get; private set; }
-    [SerializeField] private float _attackInputBufferTime = 0.2f;
+    [SerializeField] private float _attackInputBufferTime = 0.01f;
     private float _attackInputStartTime;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+
     }
 
     // Update is called once per frame
@@ -29,15 +29,17 @@ public class PlayerInputHandler : MonoBehaviour
     // Input handling
     public void OnMoveInput(InputAction.CallbackContext context)
     {
-        print("Move Input: " + context.ReadValue<Vector2>());
         Vector2 rawMovementInput = context.ReadValue<Vector2>();
         MoveInput = rawMovementInput.normalized;
     }
 
     public void OnJumpInput(InputAction.CallbackContext context)
     {
-        JumpInput = true;
-        _jumpInputStartedTime = Time.time;
+        if (context.performed)
+        {
+            JumpInput = true;
+            _jumpInputStartedTime = Time.time;
+        }
     }
 
     public void UseJumpInput() => JumpInput = false;

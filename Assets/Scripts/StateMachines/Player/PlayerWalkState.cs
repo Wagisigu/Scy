@@ -19,7 +19,7 @@ public class PlayerWalkState : PlayerGroundState
     public override void FixedUpdate()
     {
         base.FixedUpdate();
-        _playerController.MoveX(_inputHandler.MoveInput.x * _playerData.WalkSpeed);
+        _playerController.SetVelocityX(_inputHandler.MoveInput.x * _playerData.WalkSpeed);
     }
 
     public override void OnEnter()

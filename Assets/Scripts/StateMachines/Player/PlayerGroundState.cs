@@ -15,12 +15,17 @@ public class PlayerGroundState : PlayerState
 
         if (_inputHandler.JumpInput)
         {
-            _stateMachine.ChangeState(_playerController.JumpState);
             _inputHandler.UseJumpInput();
+            _stateMachine.ChangeState(_playerController.JumpState);
         }
         else if (!_playerController.IsGrounded)
         {
             _stateMachine.ChangeState(_playerController.AirState);
+        }
+        else if (_inputHandler.AttackInput)
+        {
+            _inputHandler.UseAttackInput();
+            _stateMachine.ChangeState(_playerController.AttackState);
         }
     }
 

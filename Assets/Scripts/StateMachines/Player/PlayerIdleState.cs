@@ -9,7 +9,7 @@ public class PlayerIdleState : PlayerGroundState
     public override void FixedUpdate()
     {
         base.FixedUpdate(); 
-        _playerController.MoveX(0);
+        _playerController.SetVelocityX(0);
     }
 
     public override void OnEnter()

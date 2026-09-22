@@ -20,11 +20,6 @@ public abstract class PlayerState
     // Update is called once per frame
     public virtual void Update()
     {
-        if (_inputHandler.AttackInput)
-        {
-            _stateMachine.ChangeState(_playerController.AttackState);
-            _inputHandler.UseAttackInput();
-        }
     }
 
     public virtual void FixedUpdate()

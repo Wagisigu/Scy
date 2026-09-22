@@ -1,23 +1,24 @@
-using System;
 using System.Collections;
-using System.Data;
-using Unity.InferenceEngine.Tokenization.PreTokenizers;
-using Unity.VisualScripting;
-using UnityEditor.Tilemaps;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(Animator))]
 [RequireComponent(typeof(Health))]
+[RequireComponent(typeof(PlayerInputHandler))]
 public class PlayerController : MonoBehaviour
 {
 
     public static PlayerController Instance;
+
+    #region Component References
     private Rigidbody2D _rb;
     private Health _health;
     private Animator _animator;
+    private PlayerInputHandler _inputHandler;
+    [SerializeField] private PlayerData _playerData;
+    #endregion
 
+    #region Contact Checks
     [Header("Ground Check Setup")]
     [SerializeField] private Transform _groundCheckPoint;
     [SerializeField] private Transform _wallCheckPoint;
@@ -25,19 +26,21 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private LayerMask _groundLayer;
     public bool IsGrounded;
     public bool IsWalled;
+    #endregion
 
-    [SerializeField] private PlayerData _playerData;
-    private PlayerInputHandler _inputHandler;
-
+    #region State Machine
     public PlayerStateMachine StateMachine { get; private set; }
-    public PlayerState GroundState { get; private set; }
     public PlayerState WalkState { get; private set; }
     public PlayerState IdleState { get; private set; }
-    public PlayerState ActionState { get; private set; }
     public PlayerState JumpState { get; private set; }
     public PlayerState AttackState { get; private set; }
     public PlayerState AirState { get; private set; }
     public PlayerState WallState { get; private set; }
+    #endregion
+
+    private float _initialGravity;
+    private bool _isMovementControlLocked = false; // Flag to lock velocity changes
+    public int WallDirection { get; private set; } // 1 for right wall, -1 for left wall
 
     private void Awake()
     {
@@ -47,14 +50,12 @@ public class PlayerController : MonoBehaviour
         _inputHandler = GetComponent<PlayerInputHandler>();
 
         StateMachine = new PlayerStateMachine();
-        GroundState = new PlayerGroundState(this, _inputHandler, _playerData, StateMachine, "");
         WalkState = new PlayerWalkState(this, _inputHandler, _playerData, StateMachine, "Walking");
         IdleState = new PlayerIdleState(this, _inputHandler, _playerData, StateMachine, "Idle");
-        ActionState = new PlayerActionState(this, _inputHandler, _playerData, StateMachine, "");
         JumpState = new PlayerJumpState(this, _inputHandler, _playerData, StateMachine, "");
         AttackState = new PlayerAttackState(this, _inputHandler, _playerData, StateMachine, "Attacking");
         AirState = new PlayerAirState(this, _inputHandler, _playerData, StateMachine, "Airborne");
-        WallState = new PlayerWallState(this, _inputHandler, _playerData, StateMachine, "WallSliding");
+        WallState = new PlayerWallState(this, _inputHandler, _playerData, StateMachine, "WallClinging");
 
         if (Instance == null)
         {
@@ -71,6 +72,7 @@ public class PlayerController : MonoBehaviour
     public void Start()
     {
         StateMachine.Initialize(IdleState);
+        _initialGravity = _rb.gravityScale;
     }
 
     // Update is called once per frame
@@ -80,24 +82,65 @@ public class PlayerController : MonoBehaviour
         _animator.SetFloat("HorizontalSpeed", _rb.linearVelocityX);
         IsGrounded = Physics2D.OverlapCircle(_groundCheckPoint.position, _checkRadius, _groundLayer);
         IsWalled = Physics2D.OverlapCircle(_wallCheckPoint.position, _checkRadius, _groundLayer);
+        if (IsWalled)
+        {
+            WallDirection = _wallCheckPoint.position.x > transform.position.x ? 1 : -1;
+        }
+        else
+        {
+            WallDirection = 0;
+        }
         StateMachine.Update();
     }
 
-    public void MoveX(float x)
+    public void SetVelocityX(float x, float lockControl = 0)
     {
+        if (_isMovementControlLocked) return;
+        if (lockControl != 0) LockMovementControlForSecs(lockControl);
         _rb.linearVelocityX = x;
         Flip();
     }
 
-    public void MoveY(float y)
+    public void SetVelocityY(float y, float lockControl = 0)
     {
+        if (_isMovementControlLocked) return;
+        if (lockControl != 0) LockMovementControlForSecs(lockControl);
         _rb.linearVelocityY = y;
+    }
+
+    public void SetVelocity(Vector2 velocity, float lockControl = 0)
+    {
+        if (_isMovementControlLocked) return;
+        if (lockControl != 0) LockMovementControlForSecs(lockControl);
+        _rb.linearVelocity = velocity;
+        Flip();
+    }
+
+    public void DisableGravity()
+    {
+        _rb.gravityScale = 0;
+    }
+
+    public void EnableGravity()
+    {
+        _rb.gravityScale = _initialGravity;
     }
 
     public void PlayAnimation(string animationName)
     {
-        print("Playing animation: " + animationName);
         _animator.Play(animationName);
+    }
+
+    public void LockMovementControlForSecs(float seconds)
+    {
+        _isMovementControlLocked = true;
+        StartCoroutine(LockMovementControlCoroutine(seconds));
+    }
+
+    private IEnumerator LockMovementControlCoroutine(float seconds)
+    {
+        yield return new WaitForSeconds(seconds);
+        _isMovementControlLocked = false;
     }
 
     private void OnEnable()
@@ -137,6 +180,18 @@ public class PlayerController : MonoBehaviour
             transform.localScale = new Vector3(1, 1, 1);
         }
         else if (_inputHandler.MoveInput.x < 0)
+        {
+            transform.localScale = new Vector3(-1, 1, 1);
+        }
+    }
+
+    public void ManualFlip(int direction)
+    {
+        if (direction > 0)
+        {
+            transform.localScale = new Vector3(1, 1, 1);
+        }
+        else if (direction < 0)
         {
             transform.localScale = new Vector3(-1, 1, 1);
         }

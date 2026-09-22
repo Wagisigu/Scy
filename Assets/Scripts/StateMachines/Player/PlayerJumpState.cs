@@ -14,7 +14,12 @@ public class PlayerJumpState : PlayerActionState
     public override void FixedUpdate()
     {
         base.FixedUpdate();
-        _playerController.MoveY(_playerData.JumpForce);
+    }
+
+    public override void OnEnter()
+    {
+        base.OnEnter();
+        _playerController.SetVelocityY(_playerData.JumpForce);
         _stateMachine.ChangeState(_playerController.AirState);
     }
 }
