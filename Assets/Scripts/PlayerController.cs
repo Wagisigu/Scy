@@ -1,45 +1,71 @@
-using System;
 using System.Collections;
-using System.Data;
-using Unity.VisualScripting;
-using UnityEditor.Tilemaps;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(Animator))]
 [RequireComponent(typeof(Health))]
+[RequireComponent(typeof(PlayerInputHandler))]
 public class PlayerController : MonoBehaviour
 {
-
+    #region Singleton
     public static PlayerController Instance;
+    #endregion
+
+    #region Component References
     private Rigidbody2D _rb;
     private Health _health;
     private Animator _animator;
+    private PlayerInputHandler _inputHandler;
+    [SerializeField] private PlayerData _playerData;
+    #endregion
 
-    [Header("Horizontal Movement Settings")]
-    [SerializeField] private float _walkSpeed = 1;
-    private Vector2 _moveInput;
-
-    [Header("Jump Movement Settings")]
-    [SerializeField] private float _jumpForce = 1;
-    private bool _jumpInput;
-
+    #region Contact Checks
     [Header("Ground Check Setup")]
-    [SerializeField] private Transform groundCheckPoint;
-    [SerializeField] private float checkRadius = 0.2f;
-    [SerializeField] private LayerMask groundLayer;
+    [SerializeField] private Transform _groundCheckPoint;
+    [SerializeField] private Transform _wallCheckPoint;
+    [SerializeField] private float _checkRadius = 0.2f;
+    [SerializeField] private LayerMask _groundLayer;
+    public bool IsGrounded;
+    public bool IsWalled;
+    public int WallDirection { get; private set; } // 1 for right wall, -1 for left wall
+    #endregion
 
-    private bool _attackInput;
-    private bool _isAttacking;
+    #region State Machine
+    public PlayerStateMachine StateMachine { get; private set; }
+    public PlayerState WalkState { get; private set; }
+    public PlayerState IdleState { get; private set; }
+    public PlayerState JumpState { get; private set; }
+    public PlayerState AttackState { get; private set; }
+    public PlayerState AirState { get; private set; }
+    public PlayerState WallState { get; private set; }
+    #endregion
 
-    private bool _isGrounded;
+    #region Movement Control
+    private float _initialGravity;
+    private bool _isMovementControlLocked = false; // Flag to lock velocity changes
+    #endregion
 
+    #region Unity Lifecycle
     private void Awake()
     {
         _rb = GetComponent<Rigidbody2D>();
         _animator = GetComponent<Animator>();
         _health = GetComponent<Health>();
+        _inputHandler = GetComponent<PlayerInputHandler>();
+
+        if (_playerData == null)
+        {
+            Debug.LogError("PlayerData is not assigned! Please assign PlayerData in the Inspector.");
+            return;
+        }
+
+        StateMachine = new PlayerStateMachine();
+        WalkState = new PlayerWalkState(this, _inputHandler, _playerData, StateMachine, "Walking");
+        IdleState = new PlayerIdleState(this, _inputHandler, _playerData, StateMachine, "Idle");
+        JumpState = new PlayerJumpState(this, _inputHandler, _playerData, StateMachine, "");
+        AttackState = new PlayerAttackState(this, _inputHandler, _playerData, StateMachine, "Attacking");
+        AirState = new PlayerAirState(this, _inputHandler, _playerData, StateMachine, "Airborne");
+        WallState = new PlayerWallState(this, _inputHandler, _playerData, StateMachine, "WallClinging");
 
         if (Instance == null)
         {
@@ -53,16 +79,33 @@ public class PlayerController : MonoBehaviour
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public void Start()
     {
-        
+        StateMachine.Initialize(IdleState);
+        _initialGravity = _rb.gravityScale;
     }
 
     // Update is called once per frame
-    void Update()
+    public void Update()
     {
-        UpdateStatus();
-        SendStatus();
+        _animator.SetFloat("VerticalSpeed", _rb.linearVelocityY);
+        _animator.SetFloat("HorizontalSpeed", _rb.linearVelocityX);
+        IsGrounded = Physics2D.OverlapCircle(_groundCheckPoint.position, _checkRadius, _groundLayer);
+        IsWalled = Physics2D.OverlapCircle(_wallCheckPoint.position, _checkRadius, _groundLayer);
+        if (IsWalled)
+        {
+            WallDirection = _wallCheckPoint.position.x > transform.position.x ? 1 : -1;
+        }
+        else
+        {
+            WallDirection = 0;
+        }
+        StateMachine.Update();
+    }
+
+    private void FixedUpdate()
+    {
+        StateMachine.FixedUpdate();
     }
 
     private void OnEnable()
@@ -78,7 +121,93 @@ public class PlayerController : MonoBehaviour
         _health.OnHealthChanged.RemoveListener(HandleHealthChanged);
         _health.OnDeath.RemoveListener(HandleDeath);
     }
+    #endregion
 
+    #region Movement & Velocity
+    public void SetVelocityX(float x, float lockControl = 0)
+    {
+        if (_isMovementControlLocked) return;
+        if (lockControl != 0) LockMovementControlForSecs(lockControl);
+        _rb.linearVelocityX = x;
+        Flip();
+    }
+
+    public void SetVelocityY(float y, float lockControl = 0)
+    {
+        if (_isMovementControlLocked) return;
+        if (lockControl != 0) LockMovementControlForSecs(lockControl);
+        _rb.linearVelocityY = y;
+    }
+
+    public void SetVelocity(Vector2 velocity, float lockControl = 0)
+    {
+        if (_isMovementControlLocked) return;
+        if (lockControl != 0) LockMovementControlForSecs(lockControl);
+        _rb.linearVelocity = velocity;
+        Flip();
+    }
+    #endregion
+
+    #region Gravity Control
+    public void DisableGravity()
+    {
+        _rb.gravityScale = 0;
+    }
+
+    public void EnableGravity()
+    {
+        _rb.gravityScale = _initialGravity;
+    }
+    #endregion
+
+    #region Animation
+    public void PlayAnimation(string animationName)
+    {
+        _animator.Play(animationName);
+    }
+    #endregion
+
+    #region Movement Control
+    public void LockMovementControlForSecs(float seconds)
+    {
+        _isMovementControlLocked = true;
+        StartCoroutine(LockMovementControlCoroutine(seconds));
+    }
+
+    private IEnumerator LockMovementControlCoroutine(float seconds)
+    {
+        yield return new WaitForSeconds(seconds);
+        _isMovementControlLocked = false;
+    }
+    #endregion
+
+    #region Facing Direction
+    private void Flip()
+    {
+        if (_inputHandler.MoveInput.x > 0)
+        {
+            transform.localScale = new Vector3(1, 1, 1);
+        }
+        else if (_inputHandler.MoveInput.x < 0)
+        {
+            transform.localScale = new Vector3(-1, 1, 1);
+        }
+    }
+
+    public void ManualFlip(int direction)
+    {
+        if (direction > 0)
+        {
+            transform.localScale = new Vector3(1, 1, 1);
+        }
+        else if (direction < 0)
+        {
+            transform.localScale = new Vector3(-1, 1, 1);
+        }
+    }
+    #endregion
+
+    #region Event Handlers
     private void HandleHealthChanged(int currentHealth, int maxHealth)
     {
         Debug.Log($"Player Health Updated: {currentHealth} / {maxHealth}");
@@ -89,95 +218,21 @@ public class PlayerController : MonoBehaviour
         Debug.Log("Player died!");
         Destroy(gameObject);
     }
+    #endregion
 
-    public void FinishAttack()
+    #region Utility & Debug
+    public void PrintMessage(string Message)
     {
-        _isAttacking = false;
-        _rb.gravityScale = 8; // Restore gravity scale after attack
-    }
-
-    private void FixedUpdate()
-    {
-        UpdateCharacter();
-    }
-
-    private void UpdateStatus()
-    {
-        _isGrounded = Physics2D.OverlapCircle(groundCheckPoint.position, checkRadius, groundLayer);
-    }
-
-    private void Flip()
-    {
-        if (_moveInput.x > 0)
-        {
-            transform.localScale = new Vector3(1, 1, 1);
-        }
-        else if (_moveInput.x < 0)
-        {
-            transform.localScale = new Vector3(-1, 1, 1);
-        }
-    }
-
-    private void UpdateCharacter()
-    {
-        Flip();
-        if (_isGrounded)
-        {
-            if (!_isAttacking && _jumpInput) _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, _jumpForce);
-            else if (_attackInput)
-            {
-                _isAttacking = true;
-                _animator.SetTrigger("Attack");
-            }
-            if (!_isAttacking) _rb.linearVelocity = new Vector2(_moveInput.x * _walkSpeed, _rb.linearVelocity.y);
-        }
-        else
-        {
-            if (_attackInput)
-            {
-                _isAttacking = true;
-                _animator.SetTrigger("Attack");
-
-                // Zero out current velocity so they don't slide or keep moving up/down
-                _rb.linearVelocity = Vector2.zero;
-                // Set gravity scale to 0 to prevent falling during the attack
-                _rb.gravityScale = 0;
-            }
-        }
-
-        _attackInput = false;
-        _jumpInput = false;
-    }
-
-    private void SendStatus()
-    {
-        _animator.SetBool("IsGrounded", _isGrounded);
-        _animator.SetFloat("HorizontalSpeed", Mathf.Abs(_rb.linearVelocityX));
-        _animator.SetFloat("VerticalSpeed", _rb.linearVelocityY);
-    }
-
-    // Input handling
-    private void OnMove(InputValue inputValue)
-    {
-        _moveInput = inputValue.Get<Vector2>();
-    }
-
-    private void OnJump()
-    {
-        _jumpInput = true; 
-    }
-
-    private void OnAttack()
-    {
-        _attackInput = true;
+        print(Message);
     }
 
     private void OnDrawGizmosSelected()
     {
-        if (groundCheckPoint != null)
+        if (_groundCheckPoint != null)
         {
             Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(groundCheckPoint.position, checkRadius);
+            Gizmos.DrawWireSphere(_groundCheckPoint.position, _checkRadius);
         }
     }
+    #endregion
 }
