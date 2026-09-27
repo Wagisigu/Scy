@@ -24,7 +24,19 @@ public class PlayerAirState : PlayerState
     public override void Update()
     {
         base.Update();
-        if (_playerController.IsGrounded)
+
+        // Damp vertical momentum if the player releases jump early
+        if (_inputHandler.JumpInputStop)
+        {
+            if (_playerController.CurrentVelocityY > 0f)
+            {
+                _playerController.CutJump(_playerData.JumpCutMultiplier);
+            }
+            _inputHandler.UseJumpInputStop();
+        }
+
+        // State Transitions
+        if (_playerController.IsGrounded && _playerController.CurrentVelocityY <= 0.01f)
         {
             _stateMachine.ChangeState(_playerController.IdleState);
         }

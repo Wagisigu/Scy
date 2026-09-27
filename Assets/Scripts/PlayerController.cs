@@ -45,6 +45,13 @@ public class PlayerController : MonoBehaviour
     private bool _isMovementControlLocked = false; // Flag to lock velocity changes
     #endregion
 
+    #region Velocity Accessors
+    public Vector2 CurrentVelocity => _rb.linearVelocity;
+    public float CurrentVelocityY => _rb.linearVelocityY;
+    public float CurrentVelocityX => _rb.linearVelocityX;
+
+    #endregion
+
     #region Unity Lifecycle
     private void Awake()
     {
@@ -145,6 +152,15 @@ public class PlayerController : MonoBehaviour
         if (lockControl != 0) LockMovementControlForSecs(lockControl);
         _rb.linearVelocity = velocity;
         Flip();
+    }
+
+    public void CutJump(float multiplier)
+    {
+        // Cuts upward velocity immediately if releasing early mid-ascent
+        if (_rb.linearVelocityY > 0f)
+        {
+            _rb.linearVelocityY *= multiplier;
+        }
     }
     #endregion
 

@@ -9,7 +9,8 @@ public class PlayerInputHandler : MonoBehaviour
 
     #region Jump Input
     public bool JumpInput { get; private set; }
-    [SerializeField] private float _jumpInputBufferTime = 0.01f;
+    public bool JumpInputStop { get; private set; }
+    [SerializeField] private float _jumpInputBufferTime = 0.015f;
     private float _jumpInputStartedTime;
     #endregion
 
@@ -40,10 +41,15 @@ public class PlayerInputHandler : MonoBehaviour
 
     public void OnJumpInput(InputAction.CallbackContext context)
     {
-        if (context.performed)
+        if (context.started)
         {
             JumpInput = true;
+            JumpInputStop = false;
             _jumpInputStartedTime = Time.time;
+        }
+        if (context.canceled)
+        {
+            JumpInputStop = true;
         }
     }
 
@@ -56,6 +62,8 @@ public class PlayerInputHandler : MonoBehaviour
 
     #region Input Consumption
     public void UseJumpInput() => JumpInput = false;
+
+    public void UseJumpInputStop() => JumpInputStop = false;
 
     public void UseAttackInput() => AttackInput = false;
     #endregion
