@@ -49,7 +49,6 @@ public class PlayerController : MonoBehaviour
     public Vector2 CurrentVelocity => _rb.linearVelocity;
     public float CurrentVelocityY => _rb.linearVelocityY;
     public float CurrentVelocityX => _rb.linearVelocityX;
-
     #endregion
 
     #region Unity Lifecycle
