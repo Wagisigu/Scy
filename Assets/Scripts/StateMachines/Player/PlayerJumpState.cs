@@ -12,6 +12,7 @@ public class PlayerJumpState : PlayerActionState
     public override void OnEnter()
     {
         base.OnEnter();
+        _inputHandler.UseJumpInput();
         _playerController.SetVelocityY(_playerData.JumpForce);
         _stateMachine.ChangeState(_playerController.AirState);
     }
