@@ -20,26 +20,10 @@ public class Health : MonoBehaviour, IDamageable, IHealable
     public bool IsInvulnerable => Time.time < _lastDamageTime + _invulDuration;
     public int CurrentHealth => _currentHealth;
     public int MaxHealth => _maxHealth;
-    public float HealthPercent => _maxHealth > 0 ? (float)_currentHealth / _maxHealth : 0f;
-    public bool IsAlive => _currentHealth > 0;
 
     private void Awake()
     {
         _currentHealth = _maxHealth;
-    }
-
-    public void SetMaxHealth(int newMaxHealth, bool healToFull = false)
-    {
-        _maxHealth = Mathf.Max(1, newMaxHealth);
-        if (healToFull)
-        {
-            _currentHealth = _maxHealth;
-        }
-        else
-        {
-            _currentHealth = Mathf.Min(_currentHealth, _maxHealth);
-        }
-        OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
     }
 
     public void TakeDamage(int amount)

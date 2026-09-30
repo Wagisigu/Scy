@@ -12,7 +12,6 @@ public class HealthBarUI : MonoBehaviour
 
     [Header("Positioning")]
     [SerializeField] private Vector3 _worldOffset = new Vector3(0, 2, 0);
-    [SerializeField] private bool _useWorldSpace = false;
 
     [Header("Behavior")]
     [SerializeField] private bool _hideAtFullHealth = true;
@@ -134,7 +133,7 @@ public class HealthBarUI : MonoBehaviour
         }
 
         // Initialize
-        _targetFillAmount = _health.HealthPercent;
+        _targetFillAmount = _health.CurrentHealth / (float)_health.MaxHealth;
         _healthBarFill.fillAmount = _targetFillAmount;
         UpdateHealthBarColor();
         UpdateVisibility();
@@ -198,8 +197,9 @@ public class HealthBarUI : MonoBehaviour
     {
         if (_healthBarInstance == null) return;
 
-        bool isFullHealth = _health.HealthPercent >= 1f;
-        bool shouldShow = !(_hideAtFullHealth && isFullHealth) && _health.IsAlive;
+        bool isFullHealth = _health.CurrentHealth >= _health.MaxHealth;
+        bool isDead = _health.CurrentHealth <= 0;
+        bool shouldShow = !(_hideAtFullHealth && isFullHealth) && !isDead;
 
         _healthBarInstance.SetActive(shouldShow);
     }
