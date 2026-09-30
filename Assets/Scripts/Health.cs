@@ -14,9 +14,7 @@ public class Health : MonoBehaviour, IDamageable, IHealable
 
     [Header("Events")]
     public UnityEvent<int, int> OnHealthChanged; // (current, max)
-    public UnityEvent<float> OnHealthPercentChanged; // (0-1)
     public UnityEvent OnDamaged;
-    public UnityEvent OnHealed;
     public UnityEvent OnDeath;
 
     public bool IsInvulnerable => Time.time < _lastDamageTime + _invulDuration;
@@ -42,7 +40,6 @@ public class Health : MonoBehaviour, IDamageable, IHealable
             _currentHealth = Mathf.Min(_currentHealth, _maxHealth);
         }
         OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
-        OnHealthPercentChanged?.Invoke(HealthPercent);
     }
 
     public void TakeDamage(int amount)
@@ -54,7 +51,6 @@ public class Health : MonoBehaviour, IDamageable, IHealable
 
         OnDamaged?.Invoke();
         OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
-        OnHealthPercentChanged?.Invoke(HealthPercent);
 
         if (_currentHealth == 0)
         {
@@ -67,9 +63,7 @@ public class Health : MonoBehaviour, IDamageable, IHealable
         if (_currentHealth >= _maxHealth || _currentHealth <= 0) return false;
 
         _currentHealth = Math.Min(_maxHealth, _currentHealth + amount);
-        OnHealed?.Invoke();
         OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
-        OnHealthPercentChanged?.Invoke(HealthPercent);
         return true;
     }
 

@@ -306,6 +306,7 @@ GameObject:
   - component: {fileID: 267925808}
   - component: {fileID: 267925809}
   - component: {fileID: 267925811}
+  - component: {fileID: 267925812}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -663,14 +664,16 @@ MonoBehaviour:
   _maxHealth: 10
   _currentHealth: 0
   _invulDuration: 1
-  _healthBarPrefab: {fileID: 6389157341220229832, guid: 237e7b4832e893d4e8bbc5c16a815864, type: 3}
-  _canvas: {fileID: 912278033}
-  _healthBarOffset: {x: 0, y: 0.55, z: 0}
-  _hideAtFullHealth: 1
   OnHealthChanged:
     m_PersistentCalls:
       m_Calls: []
+  OnHealthPercentChanged:
+    m_PersistentCalls:
+      m_Calls: []
   OnDamaged:
+    m_PersistentCalls:
+      m_Calls: []
+  OnHealed:
     m_PersistentCalls:
       m_Calls: []
   OnDeath:
@@ -690,6 +693,56 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::InputHandler
   _jumpInputBufferTime: 0.2
   _attackInputBufferTime: 0.2
+--- !u!114 &267925812
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 267925802}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd1edd99b715f444a8cd5dbeefea9a6c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HealthBarUI
+  _healthBarPrefab: {fileID: 4763528397337796488, guid: bdc73fa0d22f1804896af4b24ea1ae25, type: 3}
+  _canvas: {fileID: 912278033}
+  _worldOffset: {x: 0, y: 0.55, z: 0}
+  _useWorldSpace: 0
+  _hideAtFullHealth: 1
+  _hideOnDeath: 1
+  _smoothSpeed: 10
+  _useColorGradient: 1
+  _healthGradient:
+    serializedVersion: 2
+    key0: {r: 1, g: 1, b: 1, a: 1}
+    key1: {r: 1, g: 1, b: 1, a: 1}
+    key2: {r: 0, g: 0, b: 0, a: 0}
+    key3: {r: 0, g: 0, b: 0, a: 0}
+    key4: {r: 0, g: 0, b: 0, a: 0}
+    key5: {r: 0, g: 0, b: 0, a: 0}
+    key6: {r: 0, g: 0, b: 0, a: 0}
+    key7: {r: 0, g: 0, b: 0, a: 0}
+    ctime0: 0
+    ctime1: 65535
+    ctime2: 0
+    ctime3: 0
+    ctime4: 0
+    ctime5: 0
+    ctime6: 0
+    ctime7: 0
+    atime0: 0
+    atime1: 65535
+    atime2: 0
+    atime3: 0
+    atime4: 0
+    atime5: 0
+    atime6: 0
+    atime7: 0
+    m_Mode: 0
+    m_ColorSpace: -1
+    m_NumColorKeys: 2
+    m_NumAlphaKeys: 2
 --- !u!1 &331062389
 GameObject:
   m_ObjectHideFlags: 0
@@ -1278,7 +1331,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 1
+  m_PresetInfoIsWorld: 0
 --- !u!223 &912278033
 Canvas:
   m_ObjectHideFlags: 0
@@ -1288,7 +1341,7 @@ Canvas:
   m_GameObject: {fileID: 912278030}
   m_Enabled: 1
   serializedVersion: 3
-  m_RenderMode: 2
+  m_RenderMode: 0
   m_Camera: {fileID: 0}
   m_PlaneDistance: 100
   m_PixelPerfect: 0
@@ -1312,7 +1365,7 @@ RectTransform:
   m_GameObject: {fileID: 912278030}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -1320,8 +1373,8 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 2560, y: 1440}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0, y: 0}
 --- !u!1 &1026807213
 GameObject:
   m_ObjectHideFlags: 0

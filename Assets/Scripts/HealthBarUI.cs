@@ -24,14 +24,12 @@ public class HealthBarUI : MonoBehaviour
     [SerializeField] private Gradient _healthGradient;
 
     private Health _health;
-    private Camera _mainCamera;
     private float _targetFillAmount;
     private CanvasGroup _canvasGroup;
 
     private void Awake()
     {
         _health = GetComponent<Health>();
-        _mainCamera = Camera.main;
         InitializeDefaultGradient();
     }
 
@@ -44,7 +42,7 @@ public class HealthBarUI : MonoBehaviour
     {
         if (_health != null)
         {
-            _health.OnHealthPercentChanged.AddListener(OnHealthPercentChanged);
+            _health.OnHealthChanged.AddListener(OnHealthChanged);
             _health.OnDeath.AddListener(OnDeath);
         }
     }
@@ -53,7 +51,7 @@ public class HealthBarUI : MonoBehaviour
     {
         if (_health != null)
         {
-            _health.OnHealthPercentChanged.RemoveListener(OnHealthPercentChanged);
+            _health.OnHealthChanged.RemoveListener(OnHealthChanged);
             _health.OnDeath.RemoveListener(OnDeath);
         }
     }
@@ -99,15 +97,14 @@ public class HealthBarUI : MonoBehaviour
         }
 
         // Determine parent canvas
-        Canvas targetCanvas = _canvas != null ? _canvas : FindObjectOfType<Canvas>();
-        if (targetCanvas == null)
+        if (_canvas == null)
         {
             Debug.LogError($"HealthBarUI on {gameObject.name}: No canvas found. Cannot create health bar.", this);
             return;
         }
 
         // Instantiate
-        _healthBarInstance = Instantiate(_healthBarPrefab.gameObject, targetCanvas.transform);
+        _healthBarInstance = Instantiate(_healthBarPrefab.gameObject, _canvas.transform);
         _healthBarInstance.name = $"{gameObject.name}_HealthBar";
 
         // Find fill image - look for "Fill" child specifically
@@ -115,21 +112,6 @@ public class HealthBarUI : MonoBehaviour
         if (fillTransform != null)
         {
             _healthBarFill = fillTransform.GetComponent<Image>();
-        }
-
-        // If not found, search all children and pick the one that's NOT named "Background"
-        if (_healthBarFill == null)
-        {
-            Image[] allImages = _healthBarInstance.GetComponentsInChildren<Image>();
-
-            foreach (Image img in allImages)
-            {
-                if (!img.gameObject.name.Contains("Background") && !img.gameObject.name.Contains("BG"))
-                {
-                    _healthBarFill = img;
-                    break;
-                }
-            }
         }
 
         if (_healthBarFill == null)
@@ -168,29 +150,10 @@ public class HealthBarUI : MonoBehaviour
 
     private void UpdateHealthBarPosition()
     {
-        if (_healthBarInstance == null || _mainCamera == null) return;
+        if (_healthBarInstance == null) return;
 
         Vector3 worldPosition = transform.position + _worldOffset;
-
-        if (_useWorldSpace)
-        {
-            _healthBarInstance.transform.position = worldPosition;
-        }
-        else
-        {
-            // Convert world position to screen point for UI overlay
-            Vector3 screenPoint = _mainCamera.WorldToScreenPoint(worldPosition);
-
-            // Hide if behind camera
-            if (screenPoint.z < 0)
-            {
-                _canvasGroup.alpha = 0;
-                return;
-            }
-
-            _healthBarInstance.transform.position = screenPoint;
-            _canvasGroup.alpha = 1;
-        }
+        _healthBarInstance.transform.position = worldPosition;
     }
 
     private void UpdateHealthBarFill()
@@ -209,9 +172,9 @@ public class HealthBarUI : MonoBehaviour
         }
     }
 
-    private void OnHealthPercentChanged(float percent)
+    private void OnHealthChanged(int current, int max)
     {
-        _targetFillAmount = percent;
+        _targetFillAmount = (float)current / max;
         UpdateHealthBarColor();
         UpdateVisibility();
     }
@@ -239,18 +202,5 @@ public class HealthBarUI : MonoBehaviour
         bool shouldShow = !(_hideAtFullHealth && isFullHealth) && _health.IsAlive;
 
         _healthBarInstance.SetActive(shouldShow);
-    }
-
-    public void SetHealthBarActive(bool active)
-    {
-        if (_healthBarInstance != null)
-        {
-            _healthBarInstance.SetActive(active);
-        }
-    }
-
-    public void ForceUpdatePosition()
-    {
-        UpdateHealthBarPosition();
     }
 }
