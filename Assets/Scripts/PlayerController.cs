@@ -41,6 +41,7 @@ public class PlayerController : MonoBehaviour
     #endregion
 
     #region Movement Control
+    public bool IsOrientationLocked = false; // Flag to lock orientation changes
     private float _initialGravity;
     private bool _isMovementControlLocked = false; // Flag to lock velocity changes
     #endregion
@@ -199,6 +200,8 @@ public class PlayerController : MonoBehaviour
     #region Facing Direction
     private void Flip()
     {
+        if (IsOrientationLocked) return;
+
         if (_inputHandler.MoveInput.x > 0)
         {
             transform.localScale = new Vector3(1, 1, 1);

@@ -12,11 +12,13 @@ public class PlayerAttackState : PlayerActionState
     public override void OnEnter()
     {
         base.OnEnter();
+        _playerController.IsOrientationLocked = true;
     }
 
     public override void OnExit()
     {
         base.OnExit();
+        _playerController.IsOrientationLocked = false;
     }
     #endregion
 
@@ -29,6 +31,7 @@ public class PlayerAttackState : PlayerActionState
     public override void FixedUpdate()
     {
         base.FixedUpdate();
+        _playerController.SetVelocityX(_inputHandler.MoveInput.x * _playerData.WalkSpeed);
     }
     #endregion
 
