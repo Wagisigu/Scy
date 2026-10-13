@@ -13,6 +13,7 @@ public class PlayerWallState : PlayerState
     {
         base.OnEnter();
         _playerController.DisableGravity();
+        _playerController.UnlockMovementControl();
         _playerController.SetVelocityY(0); // Stop vertical movement when entering wall state
         // Clear any buffered jump input when hitting the wall so a stale jump
         // doesn't immediately trigger a wall-jump unintentionally.

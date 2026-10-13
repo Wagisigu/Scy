@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: PlayerData
   m_EditorClassIdentifier: Assembly-CSharp::PlayerData
   <WalkSpeed>k__BackingField: 5
-  <JumpForce>k__BackingField: 20
-  <WallJumpForce>k__BackingField: {x: 10, y: 20}
+  <JumpForce>k__BackingField: 10
+  <JumpCutMultiplier>k__BackingField: 0.4
+  <WallJumpForce>k__BackingField: {x: 5, y: 10}
   <WallSlideGravityScale>k__BackingField: 0.5
+  <WallJumpLockTime>k__BackingField: 0.2

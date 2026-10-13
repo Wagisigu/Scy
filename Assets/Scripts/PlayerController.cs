@@ -48,6 +48,8 @@ public class PlayerController : MonoBehaviour
     private bool _isMovementControlLocked = false; // Flag to lock velocity changes
     #endregion
 
+    private Coroutine _movementLockCoroutine;
+
     #region Velocity Accessors
     public Vector2 CurrentVelocity => _rb.linearVelocity;
     public float CurrentVelocityY => _rb.linearVelocityY;
@@ -190,7 +192,17 @@ public class PlayerController : MonoBehaviour
     public void LockMovementControlForSecs(float seconds)
     {
         _isMovementControlLocked = true;
-        StartCoroutine(LockMovementControlCoroutine(seconds));
+        _movementLockCoroutine = StartCoroutine(LockMovementControlCoroutine(seconds));
+    }
+
+    public void UnlockMovementControl()
+    {
+        _isMovementControlLocked = false;
+        if (_movementLockCoroutine != null)
+        {
+            StopCoroutine(_movementLockCoroutine);
+            _movementLockCoroutine = null;
+        }
     }
 
     private IEnumerator LockMovementControlCoroutine(float seconds)
