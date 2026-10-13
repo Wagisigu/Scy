@@ -28,6 +28,9 @@ public class Health : MonoBehaviour, IDamageable, IHealable
 
     public void TakeDamage(int amount)
     {
+        // Log the damage amount for debugging purposes
+        Debug.Log($"Taking damage: {amount}");
+
         if (IsInvulnerable || _currentHealth <= 0) return;
 
         _lastDamageTime = Time.time;

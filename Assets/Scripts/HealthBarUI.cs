@@ -104,6 +104,7 @@ public class HealthBarUI : MonoBehaviour
 
         // Instantiate
         _healthBarInstance = Instantiate(_healthBarPrefab.gameObject, _canvas.transform);
+        Debug.Log("HealthBarUI: Instantiated health bar for " + gameObject.name);
         _healthBarInstance.name = $"{gameObject.name}_HealthBar";
 
         // Find fill image - look for "Fill" child specifically
