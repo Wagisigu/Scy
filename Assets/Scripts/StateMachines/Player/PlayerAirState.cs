@@ -49,6 +49,11 @@ public class PlayerAirState : PlayerState
             _stateMachine.ChangeState(_playerController.AttackState);
             _inputHandler.UseAttackInput();
         }
+        else if (_inputHandler.DodgeInput)
+        {
+            _inputHandler.UseDodgeInput();
+            _stateMachine.ChangeState(_playerController.DodgeState);
+        }
     }
 
     public override void FixedUpdate()

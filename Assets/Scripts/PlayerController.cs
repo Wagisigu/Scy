@@ -40,6 +40,7 @@ public class PlayerController : MonoBehaviour
     public PlayerState AttackState { get; private set; }
     public PlayerState AirState { get; private set; }
     public PlayerState WallState { get; private set; }
+    public PlayerState DodgeState { get; private set; }
     #endregion
 
     #region Movement Control
@@ -78,6 +79,7 @@ public class PlayerController : MonoBehaviour
         AttackState = new PlayerAttackState(this, _inputHandler, _playerData, StateMachine, "Attacking");
         AirState = new PlayerAirState(this, _inputHandler, _playerData, StateMachine, "Airborne");
         WallState = new PlayerWallState(this, _inputHandler, _playerData, StateMachine, "WallClinging");
+        DodgeState = new PlayerDodgeState(this, _inputHandler, _playerData, StateMachine, "Roll");
 
         if (Instance == null)
         {
@@ -192,6 +194,10 @@ public class PlayerController : MonoBehaviour
     public void LockMovementControlForSecs(float seconds)
     {
         _isMovementControlLocked = true;
+        if (seconds == -1f)
+        {
+            return; // Lock indefinitely
+        }
         _movementLockCoroutine = StartCoroutine(LockMovementControlCoroutine(seconds));
     }
 
@@ -238,6 +244,8 @@ public class PlayerController : MonoBehaviour
             transform.localScale = new Vector3(-1, 1, 1);
         }
     }
+
+    public int FacingDirection => transform.localScale.x > 0 ? 1 : -1;
     #endregion
 
     #region Event Handlers

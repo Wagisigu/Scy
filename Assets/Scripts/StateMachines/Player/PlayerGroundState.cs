@@ -40,6 +40,11 @@ public class PlayerGroundState : PlayerState
             _inputHandler.UseAttackInput();
             _stateMachine.ChangeState(_playerController.AttackState);
         }
+        else if (_inputHandler.DodgeInput)
+        {
+            _inputHandler.UseDodgeInput();
+            _stateMachine.ChangeState(_playerController.DodgeState);
+        }
     }
 
     public override void FixedUpdate()

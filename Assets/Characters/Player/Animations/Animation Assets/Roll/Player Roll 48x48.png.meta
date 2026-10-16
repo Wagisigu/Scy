@@ -134,19 +134,19 @@ TextureImporter:
       name: Player Roll 48x48_0
       rect:
         serializedVersion: 2
-        x: 8
-        y: 7
-        width: 34
-        height: 26
+        x: 0
+        y: 0
+        width: 48
+        height: 48
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 95b5eaed080985900800000000000000
+      spriteID: ecccf967b856a1c4eb0fd3b6c4eee832
       internalID: 673447027458071385
       vertices: []
       indices: 
@@ -156,19 +156,19 @@ TextureImporter:
       name: Player Roll 48x48_1
       rect:
         serializedVersion: 2
-        x: 54
-        y: 7
-        width: 38
-        height: 27
+        x: 48
+        y: 0
+        width: 48
+        height: 48
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 89f61e61700a3e5d0800000000000000
+      spriteID: bd7e2fd3c9aae2243bb7ff296adb390a
       internalID: -3034405771608494184
       vertices: []
       indices: 
@@ -178,19 +178,19 @@ TextureImporter:
       name: Player Roll 48x48_2
       rect:
         serializedVersion: 2
-        x: 106
-        y: 7
-        width: 25
-        height: 21
+        x: 96
+        y: 0
+        width: 48
+        height: 48
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 2675407656c3d1cd0800000000000000
+      spriteID: 07357ca1e08f7254daf6e910d9fb04d5
       internalID: -2585844204823095454
       vertices: []
       indices: 
@@ -200,19 +200,19 @@ TextureImporter:
       name: Player Roll 48x48_3
       rect:
         serializedVersion: 2
-        x: 148
-        y: 7
-        width: 35
-        height: 16
+        x: 144
+        y: 0
+        width: 48
+        height: 48
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 3124841e9cb99c9a0800000000000000
+      spriteID: 4054f79aee6d68d41b831ec1a7e22cc4
       internalID: -6212262919610547693
       vertices: []
       indices: 
@@ -222,19 +222,19 @@ TextureImporter:
       name: Player Roll 48x48_4
       rect:
         serializedVersion: 2
-        x: 199
-        y: 7
-        width: 30
-        height: 27
+        x: 192
+        y: 0
+        width: 48
+        height: 48
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 935ecaaca5d2ce2e0800000000000000
+      spriteID: 352a3fdff582ee44da43f73117c6ba95
       internalID: -2095249858663488199
       vertices: []
       indices: 
@@ -244,19 +244,19 @@ TextureImporter:
       name: Player Roll 48x48_5
       rect:
         serializedVersion: 2
-        x: 254
-        y: 7
-        width: 22
-        height: 26
+        x: 240
+        y: 0
+        width: 48
+        height: 48
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 514aedc7471d3bb70800000000000000
+      spriteID: 08d03d2c6bceca34c842374821ac0063
       internalID: 8913698385737720853
       vertices: []
       indices: 
@@ -266,19 +266,19 @@ TextureImporter:
       name: Player Roll 48x48_6
       rect:
         serializedVersion: 2
-        x: 301
-        y: 7
-        width: 25
-        height: 23
+        x: 288
+        y: 0
+        width: 48
+        height: 48
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 1e82c37f8cbdaa880800000000000000
+      spriteID: b8407c17be2ec1f40a12f01e34cbb1a7
       internalID: -8598818882322683679
       vertices: []
       indices: 
@@ -288,7 +288,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 034fecff31887204aaad5826fee5aa4f
     internalID: 0
     vertices: []
     indices: 
@@ -296,7 +296,9 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries: []
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":48.0,"y":48.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
       Player Roll 48x48_0: 673447027458071385
       Player Roll 48x48_1: -3034405771608494184

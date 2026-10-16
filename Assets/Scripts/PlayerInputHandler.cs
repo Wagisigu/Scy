@@ -20,6 +20,12 @@ public class PlayerInputHandler : MonoBehaviour
     private float _attackInputStartTime;
     #endregion
 
+    #region Dodge Input
+    public bool DodgeInput { get; private set; }
+    [SerializeField] private float _dodgeInputBufferTime = 0.01f;
+    private float _dodgeInputStartTime;
+    #endregion
+
     #region Unity Lifecycle
     private void Start()
     {
@@ -29,6 +35,7 @@ public class PlayerInputHandler : MonoBehaviour
     {
         if (JumpInput && Time.time - _jumpInputStartedTime >= _jumpInputBufferTime) JumpInput = false;
         if (AttackInput && Time.time - _attackInputStartTime >= _attackInputBufferTime) AttackInput = false;
+        if (DodgeInput && Time.time - _dodgeInputStartTime >= _dodgeInputBufferTime) DodgeInput = false;
     }
     #endregion
 
@@ -58,6 +65,12 @@ public class PlayerInputHandler : MonoBehaviour
         AttackInput = true;
         _attackInputStartTime = Time.time;
     }
+
+    public void OnDodgeInput(InputAction.CallbackContext context)
+    {
+        DodgeInput = true;
+        _dodgeInputStartTime = Time.time;
+    }
     #endregion
 
     #region Input Consumption
@@ -66,5 +79,7 @@ public class PlayerInputHandler : MonoBehaviour
     public void UseJumpInputStop() => JumpInputStop = false;
 
     public void UseAttackInput() => AttackInput = false;
+
+    public void UseDodgeInput() => DodgeInput = false;
     #endregion
 }

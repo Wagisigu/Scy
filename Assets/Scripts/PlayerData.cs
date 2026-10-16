@@ -16,4 +16,9 @@ public class PlayerData : ScriptableObject
     [field: SerializeField] public float WallSlideGravityScale { get; private set; } = 0.5f;
     [field: SerializeField] public float WallJumpLockTime { get; private set; } = 0.1f;
     #endregion
+
+    #region Action Settings
+    [Header("Action Settings")]
+    [field: SerializeField] public float DodgeSpeed { get; private set; } = 1;
+    #endregion
 }
