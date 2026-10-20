@@ -14,6 +14,7 @@ public class PlayerDodgeState : PlayerActionState
     public override void OnEnter()
     {
         base.OnEnter();
+        _playerController.SetInvulnerability(true);
         _playerController.SetVelocityX(_playerData.DodgeSpeed * _playerController.FacingDirection, -1);
     }
 
@@ -30,5 +31,11 @@ public class PlayerDodgeState : PlayerActionState
     {
         _playerController.UnlockMovementControl();
         _stateMachine.ChangeState(_playerController.IdleState);
+    }
+
+    public override void OnExit()
+    {
+        base.OnExit();
+        _playerController.SetInvulnerability(false);
     }
 }

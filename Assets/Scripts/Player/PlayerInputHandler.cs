@@ -62,8 +62,11 @@ public class PlayerInputHandler : MonoBehaviour
 
     public void OnAttackInput(InputAction.CallbackContext context)
     {
-        AttackInput = true;
-        _attackInputStartTime = Time.time;
+        if (context.started)
+        {
+            AttackInput = true;
+            _attackInputStartTime = Time.time;
+        }
     }
 
     public void OnDodgeInput(InputAction.CallbackContext context)

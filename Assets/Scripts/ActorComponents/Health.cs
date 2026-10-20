@@ -17,7 +17,8 @@ public class Health : MonoBehaviour, IDamageable, IHealable
     public UnityEvent OnDamaged;
     public UnityEvent OnDeath;
 
-    public bool IsInvulnerable => Time.time < _lastDamageTime + _invulDuration;
+    public bool ManualInvulnerability = false;
+    public bool IsInvulnerable => Time.time < _lastDamageTime + _invulDuration || ManualInvulnerability;
     public int CurrentHealth => _currentHealth;
     public int MaxHealth => _maxHealth;
 

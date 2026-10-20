@@ -260,4 +260,9 @@ public class PlayerController : MonoBehaviour
         Destroy(gameObject);
     }
     #endregion
+
+    public void SetInvulnerability(bool isInvulnerable)
+    {
+        _health.ManualInvulnerability = isInvulnerable;
+    }
 }
