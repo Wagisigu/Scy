@@ -15,7 +15,8 @@ public class PlayerDodgeState : PlayerActionState
     {
         base.OnEnter();
         _playerController.SetInvulnerability(true);
-        _playerController.SetVelocityX(_playerData.DodgeSpeed * _playerController.FacingDirection, -1);
+        int dodgeDirection = _inputHandler.MoveInput.x != 0 ? (int)Mathf.Sign(_inputHandler.MoveInput.x) : _playerController.FacingDirection;
+        _playerController.SetVelocityX(_playerData.DodgeSpeed * dodgeDirection, -1);
     }
 
     public override void Update()

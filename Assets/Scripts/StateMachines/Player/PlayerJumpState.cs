@@ -14,6 +14,7 @@ public class PlayerJumpState : PlayerActionState
         base.OnEnter();
         _inputHandler.UseJumpInput();
         _playerController.SetVelocityY(_playerData.JumpForce);
+        _playerController.SetVelocityX(_inputHandler.MoveInput.x * _playerData.WalkSpeed);
         _stateMachine.ChangeState(_playerController.AirState);
     }
     #endregion

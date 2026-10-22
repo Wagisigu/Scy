@@ -13,6 +13,7 @@ public class PlayerGroundState : PlayerState
     public override void OnEnter()
     {
         base.OnEnter();
+        _playerController.CanDoubleJump = true; // Reset double jump when entering ground state
     }
 
     public override void OnExit()

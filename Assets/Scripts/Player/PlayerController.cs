@@ -23,9 +23,10 @@ public class PlayerController : MonoBehaviour
 
     #region Contact Checks
     [Header("Ground Check Setup")]
-    [SerializeField] private Transform _groundCheckPoint;
+    [SerializeField] private Transform[] _groundCheckPoints;
     [SerializeField] private Transform _wallCheckPoint;
-    [SerializeField] private float _checkRadius = 0.2f;
+    [SerializeField] private float _groundCheckRadius = 0.2f;
+    [SerializeField] private float _wallCheckRadius = 0.2f;
     [SerializeField] private LayerMask _groundLayer;
     public bool IsGrounded;
     public bool IsWalled;
@@ -45,6 +46,7 @@ public class PlayerController : MonoBehaviour
 
     #region Movement Control
     public bool IsOrientationLocked = false; // Flag to lock orientation changes
+    public bool CanDoubleJump = true; // Flag to allow double jump
     private float _initialGravity;
     private bool _isMovementControlLocked = false; // Flag to lock velocity changes
     #endregion
@@ -104,8 +106,23 @@ public class PlayerController : MonoBehaviour
     {
         _animator.SetFloat("VerticalSpeed", _rb.linearVelocityY);
         _animator.SetFloat("HorizontalSpeed", _rb.linearVelocityX);
-        IsGrounded = Physics2D.OverlapCircle(_groundCheckPoint.position, _checkRadius, _groundLayer);
-        IsWalled = Physics2D.OverlapCircle(_wallCheckPoint.position, _checkRadius, _groundLayer);
+        IsGrounded = false;
+        for (int i = 0; i < _groundCheckPoints.Length; i++)
+        {
+            if (_groundCheckPoints[i] == null)
+            {
+                Debug.LogError($"Ground check point at index {i} is not assigned in the Inspector.");
+            }
+            else
+            {
+                if (Physics2D.OverlapCircle(_groundCheckPoints[i].position, _groundCheckRadius, _groundLayer))
+                {
+                    IsGrounded = true;
+                    break;
+                }
+            }
+        }
+        IsWalled = Physics2D.OverlapCircle(_wallCheckPoint.position, _wallCheckRadius, _groundLayer);
         if (IsWalled)
         {
             WallDirection = _wallCheckPoint.position.x > transform.position.x ? 1 : -1;
@@ -264,5 +281,23 @@ public class PlayerController : MonoBehaviour
     public void SetInvulnerability(bool isInvulnerable)
     {
         _health.ManualInvulnerability = isInvulnerable;
+    }
+
+    // Show gizmos for ground and wall check points in the editor
+    private void OnDrawGizmosSelected()
+    {
+        if (_groundCheckPoints != null)
+        {
+            Gizmos.color = Color.green;
+            foreach (Transform checkPoint in _groundCheckPoints)
+            {
+                Gizmos.DrawWireSphere(checkPoint.position, _groundCheckRadius);
+            }
+        }
+        if (_wallCheckPoint != null)
+        {
+            Gizmos.color = Color.blue;
+            Gizmos.DrawWireSphere(_wallCheckPoint.position, _wallCheckRadius);
+        }
     }
 }

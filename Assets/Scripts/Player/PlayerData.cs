@@ -6,6 +6,7 @@ public class PlayerData : ScriptableObject
     #region Horizontal Movement
     [Header("Horizontal Movement Settings")]
     [field: SerializeField] public float WalkSpeed { get; private set; } = 1;
+    [field: SerializeField] public float AirStrafeSpeed { get; private set; } = 1;
     #endregion
 
     #region Jump Movement

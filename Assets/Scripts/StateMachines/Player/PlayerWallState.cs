@@ -12,6 +12,7 @@ public class PlayerWallState : PlayerState
     public override void OnEnter()
     {
         base.OnEnter();
+        _playerController.CanDoubleJump = true; // Reset double jump when entering wall state
         _playerController.DisableGravity();
         _playerController.UnlockMovementControl();
         _playerController.SetVelocityY(0); // Stop vertical movement when entering wall state
