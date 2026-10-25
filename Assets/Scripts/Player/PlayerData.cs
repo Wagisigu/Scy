@@ -13,9 +13,14 @@ public class PlayerData : ScriptableObject
     [Header("Jump Movement Settings")]
     [field: SerializeField] public float JumpForce { get; private set; } = 1;
     [field: SerializeField, Range(0f, 1f)] public float JumpCutMultiplier { get; private set; } = 0.4f;
+    #endregion
+
+    #region Wall Settings
+    [Header("Wall Settings")]
     [field: SerializeField] public Vector2 WallJumpForce { get; private set; } = Vector2.one;
     [field: SerializeField] public float WallSlideGravityScale { get; private set; } = 0.5f;
     [field: SerializeField] public float WallJumpLockTime { get; private set; } = 0.1f;
+    [field: SerializeField] public float WallPushOffTime { get; private set; } = 0.2f;
     #endregion
 
     #region Action Settings
