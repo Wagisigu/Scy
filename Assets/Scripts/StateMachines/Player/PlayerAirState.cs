@@ -54,11 +54,19 @@ public class PlayerAirState : PlayerState
             _inputHandler.UseDodgeInput();
             _stateMachine.ChangeState(_playerController.DodgeState);
         }
-        else if (_inputHandler.JumpInput && _playerController.CanDoubleJump)
+        else if (_inputHandler.JumpInput)
         {
-            _playerController.CanDoubleJump = false; // Consume double jump
-            _stateMachine.ChangeState(_playerController.JumpState);
-            _inputHandler.UseJumpInput();
+            if (Time.time - _playerController.CoyoteStartTime < _playerData.CoyoteTime)
+            {
+                _stateMachine.ChangeState(_playerController.JumpState);
+                _inputHandler.UseJumpInput();
+            }
+            else if (_playerController.CanDoubleJump)
+            {
+                _playerController.CanDoubleJump = false; // Consume double jump
+                _stateMachine.ChangeState(_playerController.JumpState);
+                _inputHandler.UseJumpInput();
+            }
         }
     }
 

@@ -34,6 +34,7 @@ public class PlayerGroundState : PlayerState
         }
         else if (!_playerController.IsGrounded)
         {
+            _playerController.CoyoteStartTime = Time.time; // Start coyote time when leaving ground
             _stateMachine.ChangeState(_playerController.AirState);
         }
         else if (_inputHandler.AttackInput)

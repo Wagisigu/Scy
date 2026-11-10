@@ -46,6 +46,7 @@ public class PlayerController : MonoBehaviour
 
     #region Movement Control
     public bool IsOrientationLocked = false; // Flag to lock orientation changes
+    public float CoyoteStartTime; // Time when the player left the ground
     public bool CanDoubleJump = true; // Flag to allow double jump
     private float _initialGravity;
     private bool _isMovementControlLocked = false; // Flag to lock velocity changes

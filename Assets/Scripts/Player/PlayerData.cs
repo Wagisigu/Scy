@@ -13,6 +13,7 @@ public class PlayerData : ScriptableObject
     [Header("Jump Movement Settings")]
     [field: SerializeField] public float JumpForce { get; private set; } = 1;
     [field: SerializeField, Range(0f, 1f)] public float JumpCutMultiplier { get; private set; } = 0.4f;
+    [field: SerializeField] public float CoyoteTime { get; private set; } = 0.1f;
     #endregion
 
     #region Wall Settings
