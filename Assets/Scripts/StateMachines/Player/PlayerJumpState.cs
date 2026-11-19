@@ -14,7 +14,7 @@ public class PlayerJumpState : PlayerActionState
         base.OnEnter();
         _inputHandler.UseJumpInput();
         _playerController.SetVelocityY(_playerData.JumpForce);
-        _playerController.SetVelocityX(_inputHandler.MoveInput.x * _playerData.WalkSpeed);
+        _playerController.SetVelocityX(_inputHandler.MoveInput.x * _airHorizontalSpeed);
     }
     #endregion
 
@@ -56,7 +56,7 @@ public class PlayerJumpState : PlayerActionState
     public override void FixedUpdate()
     {
         base.FixedUpdate();
-        _playerController.SetVelocityX(_inputHandler.MoveInput.x * _playerData.WalkSpeed);
+        _playerController.SetVelocityX(_inputHandler.MoveInput.x * _airHorizontalSpeed);
     }
 
     public override void OnExit()

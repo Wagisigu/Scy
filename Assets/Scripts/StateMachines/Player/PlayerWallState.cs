@@ -67,7 +67,10 @@ public class PlayerWallState : PlayerState
     public override void FixedUpdate()
     {
         base.FixedUpdate();
-        if (_hasPushedOffWall) _playerController.SetVelocityX(_inputHandler.MoveInput.x * _playerData.WalkSpeed);
+        if (_hasPushedOffWall)
+        {
+            _playerController.SetVelocityX(_inputHandler.MoveInput.x * _airHorizontalSpeed);
+        }
         if (_inputHandler.JumpInput)
         {
             _playerController.SetVelocity(new Vector2(_playerData.WallJumpForce.x * -_playerController.WallDirection, _playerData.WallJumpForce.y), _playerData.WallJumpLockTime);

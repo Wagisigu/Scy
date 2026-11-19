@@ -8,6 +8,7 @@ public class PlayerData : ScriptableObject
     [field: SerializeField] public float WalkSpeed { get; private set; } = 1;
     [field: SerializeField] public float SprintSpeed { get; private set; } = 1;
     [field: SerializeField] public float AirStrafeSpeed { get; private set; } = 1;
+    [field: SerializeField] public float AirSprintStrafeSpeed { get; private set; } = 1;
     #endregion
 
     #region Jump Movement

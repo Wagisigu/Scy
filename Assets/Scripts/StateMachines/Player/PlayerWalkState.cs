@@ -25,7 +25,7 @@ public class PlayerWalkState : PlayerGroundState
     public override void FixedUpdate()
     {
         base.FixedUpdate();
-        _playerController.SetVelocityX(_inputHandler.MoveInput.x * _playerData.WalkSpeed);
+        _playerController.SetVelocityX(_inputHandler.MoveInput.x * _groundHorizontalSpeed);
     }
     #endregion
 }

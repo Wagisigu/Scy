@@ -73,7 +73,7 @@ public class PlayerAirState : PlayerState
     public override void FixedUpdate()
     {
         base.FixedUpdate();
-        _playerController.SetVelocityX(_inputHandler.MoveInput.x * _playerData.WalkSpeed);
+        _playerController.SetVelocityX(_inputHandler.MoveInput.x * _airHorizontalSpeed);
     }
     #endregion
 }

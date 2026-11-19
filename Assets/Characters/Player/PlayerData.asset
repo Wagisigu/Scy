@@ -12,8 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 964d82e06c8e28c42bb314ea7fd1e117, type: 3}
   m_Name: PlayerData
   m_EditorClassIdentifier: Assembly-CSharp::PlayerData
-  <WalkSpeed>k__BackingField: 5
-  <AirStrafeSpeed>k__BackingField: 5
+  <WalkSpeed>k__BackingField: 3
+  <SprintSpeed>k__BackingField: 6
+  <AirStrafeSpeed>k__BackingField: 4
+  <AirSprintStrafeSpeed>k__BackingField: 7
   <JumpForce>k__BackingField: 10
   <JumpCutMultiplier>k__BackingField: 0.4
   <CoyoteTime>k__BackingField: 0.2

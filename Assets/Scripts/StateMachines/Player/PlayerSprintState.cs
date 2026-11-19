@@ -23,7 +23,7 @@ public class PlayerSprintState : PlayerGroundState
     public override void FixedUpdate()
     {
         base.FixedUpdate();
-        _playerController.SetVelocityX(_inputHandler.MoveInput.x * _playerData.SprintSpeed);
+        _playerController.SetVelocityX(_inputHandler.MoveInput.x * _groundHorizontalSpeed);
     }
     #endregion
 }

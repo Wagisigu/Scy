@@ -31,14 +31,7 @@ public class PlayerAttackState : PlayerActionState
     public override void FixedUpdate()
     {
         base.FixedUpdate();
-        if (_inputHandler.SprintInput)
-        {
-            _playerController.SetVelocityX(_inputHandler.MoveInput.x * _playerData.SprintSpeed);
-        }
-        else
-        {
-            _playerController.SetVelocityX(_inputHandler.MoveInput.x * _playerData.WalkSpeed);
-        }
+        _playerController.SetVelocityX(_inputHandler.MoveInput.x * _groundHorizontalSpeed);
     }
     #endregion
 
