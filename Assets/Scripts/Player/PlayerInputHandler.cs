@@ -26,6 +26,10 @@ public class PlayerInputHandler : MonoBehaviour
     private float _dodgeInputStartTime;
     #endregion
 
+    #region Sprint Input
+    public bool SprintInput { get; private set; }
+    #endregion
+
     #region Unity Lifecycle
     private void Start()
     {
@@ -73,6 +77,18 @@ public class PlayerInputHandler : MonoBehaviour
     {
         DodgeInput = true;
         _dodgeInputStartTime = Time.time;
+    }
+
+    public void OnSprintInput(InputAction.CallbackContext context)
+    {
+        if (context.started)
+        {
+            SprintInput = true;
+        }
+        else if (context.canceled)
+        {
+            SprintInput = false;
+        }
     }
     #endregion
 

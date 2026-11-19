@@ -8,18 +8,6 @@ public class PlayerWalkState : PlayerGroundState
     }
     #endregion
 
-    #region State Lifecycle
-    public override void OnEnter()
-    {
-        base.OnEnter();
-    }
-
-    public override void OnExit()
-    {
-        base.OnExit();
-    }
-    #endregion
-
     #region State Updates
     public override void Update()
     {
@@ -27,6 +15,10 @@ public class PlayerWalkState : PlayerGroundState
         if (_inputHandler.MoveInput.x == 0)
         {
             _stateMachine.ChangeState(_playerController.IdleState);
+        }
+        else if (_inputHandler.SprintInput)
+        {
+            _stateMachine.ChangeState(_playerController.SprintState);
         }
     }
 

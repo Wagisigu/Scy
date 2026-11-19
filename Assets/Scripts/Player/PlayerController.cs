@@ -43,6 +43,7 @@ public class PlayerController : MonoBehaviour
     public PlayerState AirState { get; private set; }
     public PlayerState WallState { get; private set; }
     public PlayerState DodgeState { get; private set; }
+    public PlayerState SprintState { get; private set; }
     #endregion
 
     #region Movement Control
@@ -85,6 +86,7 @@ public class PlayerController : MonoBehaviour
         AirState = new PlayerAirState(this, _inputHandler, _playerData, StateMachine, "Airborne");
         WallState = new PlayerWallState(this, _inputHandler, _playerData, StateMachine, "WallClinging");
         DodgeState = new PlayerDodgeState(this, _inputHandler, _playerData, StateMachine, "Roll");
+        SprintState = new PlayerSprintState(this, _inputHandler, _playerData, StateMachine, "KatanaSprint");
 
         if (Instance == null)
         {
