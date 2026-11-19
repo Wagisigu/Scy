@@ -64,7 +64,7 @@ public class PlayerAirState : PlayerState
             else if (_playerController.CanDoubleJump)
             {
                 _playerController.CanDoubleJump = false; // Consume double jump
-                _stateMachine.ChangeState(_playerController.JumpState);
+                _stateMachine.ChangeState(_playerController.DoubleJumpState);
                 _inputHandler.UseJumpInput();
             }
         }
@@ -73,11 +73,7 @@ public class PlayerAirState : PlayerState
     public override void FixedUpdate()
     {
         base.FixedUpdate();
-        // Add force to the player based on input for air control
-        float targetVelocityX = _inputHandler.MoveInput.x * _playerData.AirStrafeSpeed;
-        float velocityChangeX = targetVelocityX - _playerController.CurrentVelocityX;
-        const float airControlFactor = 0.1f; // Adjust this factor for more or less air control
-        _playerController.SetVelocityX(_playerController.CurrentVelocityX + velocityChangeX * airControlFactor);
+        _playerController.SetVelocityX(_inputHandler.MoveInput.x * _playerData.WalkSpeed);
     }
     #endregion
 }

@@ -72,7 +72,7 @@ public class PlayerWallState : PlayerState
         {
             _playerController.SetVelocity(new Vector2(_playerData.WallJumpForce.x * -_playerController.WallDirection, _playerData.WallJumpForce.y), _playerData.WallJumpLockTime);
             _playerController.ManualFlip(-_playerController.WallDirection); // Flip the player to face the opposite direction after wall jump
-            _stateMachine.ChangeState(_playerController.AirState);
+            _stateMachine.ChangeState(_playerController.JumpState);
             _inputHandler.UseJumpInput();
         }
     }

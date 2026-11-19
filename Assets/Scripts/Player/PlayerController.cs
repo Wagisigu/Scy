@@ -38,6 +38,7 @@ public class PlayerController : MonoBehaviour
     public PlayerState WalkState { get; private set; }
     public PlayerState IdleState { get; private set; }
     public PlayerState JumpState { get; private set; }
+    public PlayerState DoubleJumpState { get; private set; }
     public PlayerState AttackState { get; private set; }
     public PlayerState AirState { get; private set; }
     public PlayerState WallState { get; private set; }
@@ -78,7 +79,8 @@ public class PlayerController : MonoBehaviour
         StateMachine = new PlayerStateMachine();
         WalkState = new PlayerWalkState(this, _inputHandler, _playerData, StateMachine, "Walking");
         IdleState = new PlayerIdleState(this, _inputHandler, _playerData, StateMachine, "Idle");
-        JumpState = new PlayerJumpState(this, _inputHandler, _playerData, StateMachine, "");
+        JumpState = new PlayerJumpState(this, _inputHandler, _playerData, StateMachine, "Jump");
+        DoubleJumpState = new PlayerDoubleJumpState(this, _inputHandler, _playerData, StateMachine, "DoubleJump");
         AttackState = new PlayerAttackState(this, _inputHandler, _playerData, StateMachine, "Attacking");
         AirState = new PlayerAirState(this, _inputHandler, _playerData, StateMachine, "Airborne");
         WallState = new PlayerWallState(this, _inputHandler, _playerData, StateMachine, "WallClinging");

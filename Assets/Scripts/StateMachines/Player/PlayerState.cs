@@ -10,6 +10,8 @@ public abstract class PlayerState
     protected string _animationName;
     #endregion
 
+    protected bool _ignoreAnimationEndCallback = false;
+
     #region Constructor
     public PlayerState(PlayerController playerController, PlayerInputHandler inputHandler, PlayerData playerData, PlayerStateMachine stateMachine, string animationName)
     {
@@ -24,6 +26,7 @@ public abstract class PlayerState
     #region State Lifecycle
     public virtual void OnEnter()
     {
+        _ignoreAnimationEndCallback = false;
         if (!string.IsNullOrEmpty(_animationName))
         {
             _playerController.PlayAnimation(_animationName);
