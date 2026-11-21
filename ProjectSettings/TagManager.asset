@@ -38,6 +38,12 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: Enemy
+    uniqueID: 3909374569
+    locked: 0
+  - name: Player
+    uniqueID: 3723461177
+    locked: 0
   - name: Default
     uniqueID: 0
     locked: 0
